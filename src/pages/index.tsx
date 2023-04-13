@@ -15,11 +15,11 @@ export default function Home() {
     <AppShell className={`${inter.className} bg-gradient-blue bg-blue-grey bg-blend-soft-light`}>
       <Container p={0}>
         <CityOverview
-          city="西安市"
-          temperature={20}
-          highTemperature={29}
-          lowTemperature={12}
-          skycon="PARTLY_CLOUDY_NIGHT"
+          city="西安市长安区"
+          temperature={mockData.result.realtime?.temperature}
+          highTemperature={mockData.result.daily?.temperature[0].max}
+          lowTemperature={mockData.result.daily?.temperature[0].min}
+          skycon={mockData.result.realtime?.skycon}
         />
         <SimpleGrid
           cols={4}

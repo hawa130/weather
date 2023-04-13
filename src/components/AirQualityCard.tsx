@@ -39,15 +39,15 @@ export default function AirQualityCard({ data, ...props }: AirQualityCardProps) 
 
   return (
     <DataCard {...props} icon={<Mist size={14} />} title="空气质量">
-      <Flex justify="space-around" gap="lg">
-        <Center py="md">
+      <Flex justify="space-around" align="center" gap="lg">
+        <Center h={120} w={120}>
           <Gauge
             percent={aqi ? aqi / 500 : 0}
             indicator={false}
             innerRadius={0.8}
             gaugeStyle={{ lineCap: 'round' }}
             width={120}
-            height={100}
+            height={120}
             range={{
               ticks: [aqi ? aqi / 500 : 0.001, 1],
               color: [getAQIColor(aqi), '#ffffff4c'],
