@@ -21,7 +21,7 @@ export default function CityOverview(
           <Text size="xl">{city ?? '--'}</Text>
         </Group>
         <Text weight={500} className="text-[64px] leading-none">
-          {temperature ?? '--'}
+          {temperature?.toFixed(0) ?? '--'}
           <span className="inline-block w-0">°</span>
         </Text>
         <Text>{skycon ? getSkyConText(skycon) : '--'}</Text>

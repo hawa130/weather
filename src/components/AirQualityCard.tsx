@@ -14,17 +14,17 @@ export interface AirQualityCardProps extends Omit<DataCardProps, 'icon' | 'title
   data?: AirQualityType;
 }
 
-function getAQIColor(aqi?: number): string {
+export function getAQIColor(aqi?: number): string {
   if (aqi == undefined) return '#ffffff4c';
   if (aqi <= 50) return '#2bd92b';
-  if (aqi <= 100) return '#ffd500';
+  if (aqi <= 100) return '#ecc40e';
   if (aqi <= 150) return '#ff7e00';
   if (aqi <= 200) return '#e53737';
   if (aqi <= 300) return '#99004c';
   return '#7e0023';
 }
 
-function getAQIText(aqi?: number): string {
+export function getAQIText(aqi?: number): string {
   if (aqi == undefined) return '无数据';
   if (aqi <= 50) return '优';
   if (aqi <= 100) return '良';
@@ -39,7 +39,7 @@ export default function AirQualityCard({ data, ...props }: AirQualityCardProps) 
 
   return (
     <DataCard {...props} icon={<Mist size={14} />} title="空气质量">
-      <Flex justify="space-around" align="center" gap="lg">
+      <Flex className="h-full" justify="space-around" align="center" gap="lg">
         <Center h={120} w={120}>
           <Gauge
             percent={aqi ? aqi / 500 : 0}

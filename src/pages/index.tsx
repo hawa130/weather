@@ -1,9 +1,10 @@
 import { Inter } from 'next/font/google';
-import { AppShell, Container, SimpleGrid } from '@mantine/core';
+import { AppShell, Container, SimpleGrid, Text } from '@mantine/core';
 import CityOverview from '@/components/CityOverview';
 import AirQualityCard from '@/components/AirQualityCard';
 import Data from '@/mock/weather.json';
 import { WeatherData } from '@/types/weather';
+import HourlyCard from '@/components/HourlyCard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,7 +31,12 @@ export default function Home() {
           mt="lg"
         >
           <AirQualityCard className="col-span-2" data={mockData.result.realtime?.air_quality} />
+          <HourlyCard className="col-span-2" data={mockData.result.hourly} />
         </SimpleGrid>
+        <Text align="center" size="sm" mt="lg">
+          <span className="opacity-60">数据来源：</span>
+          <a className="opacity-60 hover:opacity-100" href="https://www.caiyunapp.com/" target="_blank">彩云天气</a>
+        </Text>
       </Container>
     </AppShell>
   );

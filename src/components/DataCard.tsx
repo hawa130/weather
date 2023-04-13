@@ -11,14 +11,16 @@ export default function DataCard({ icon, title, children, className, ...props }:
   return (
     <Box
       px="md" pb="sm"
-      className={cls(className, 'bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent')}
+      className={cls(className, 'bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent flex flex-col')}
       {...props}
     >
       <Group py="sm" spacing="xs">
         <Text>{icon}</Text>
         <Text size="sm">{title}</Text>
       </Group>
-      {children}
+      <Box className="flex-grow">
+        {children}
+      </Box>
     </Box>
   );
 }
