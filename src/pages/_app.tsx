@@ -17,14 +17,30 @@ export default function App({ Component, pageProps }: AppProps) {
         theme={{
           /** Put your mantine theme override here */
           spacing: {
-            xs: '.25rem',
-            sm: '.5rem',
-            md: '.75rem',
-            lg: '1rem',
-            xl: '1.25rem',
-            xxl: '1.5rem',
+            xs: '.25rem',  // 4px
+            sm: '.5rem',   // 8px
+            md: '.75rem',  // 12px
+            lg: '1rem',    // 16px
+            xl: '1.25rem', // 20px
+            '2xl': '1.5rem',  // 24px
+            '3xl': '1.75rem', // 28px
+            '4xl': '2rem',    // 32px
           },
-          colorScheme: 'light',
+          colorScheme: 'dark',
+          colors: {
+            dark: [
+              '#ffffff',
+              '#C1C2C5',
+              '#A6A7AB',
+              '#909296',
+              '#5C5F66',
+              '#2C2E33',
+              '#25262B',
+              '#1A1B1E',
+              '#141517',
+              '#101113',
+            ],
+          },
         }}
       >
         <Component {...pageProps} />

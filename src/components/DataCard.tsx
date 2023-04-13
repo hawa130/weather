@@ -8,10 +8,14 @@ export interface DataCardProps extends BoxProps {
 
 export default function DataCard({ icon, title, children, ...props }: DataCardProps) {
   return (
-    <Box className="border rounded-lg" px="md" pb="sm" {...props}>
+    <Box
+      px="md" pb="sm"
+      className="bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent"
+      {...props}
+    >
       <Group py="sm" spacing="xs">
-        <Text color="dimmed">{icon}</Text>
-        <Text color="dimmed" size="sm">{title}</Text>
+        <Text>{icon}</Text>
+        <Text size="sm">{title}</Text>
       </Group>
       {children}
     </Box>
