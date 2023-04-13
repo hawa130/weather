@@ -2,8 +2,13 @@ import { Inter } from 'next/font/google';
 import { AppShell, Container, SimpleGrid } from '@mantine/core';
 import CityOverview from '@/components/CityOverview';
 import AirQualityCard from '@/components/AirQualityCard';
+import Data from '@/mock/weather.json';
+import { WeatherData } from '@/types/weather';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// @ts-ignore
+const mockData = Data as WeatherData;
 
 export default function Home() {
   return (
@@ -16,10 +21,15 @@ export default function Home() {
           lowTemperature={12}
           skycon="PARTLY_CLOUDY_NIGHT"
         />
-        <SimpleGrid cols={4} spacing="lg" mt="lg">
-          {Array.from({ length: 11 }, (_, index) => index * 50).map((val) => (
-            <AirQualityCard key={val} aqi={val} />
-          ))}
+        <SimpleGrid
+          cols={4}
+          breakpoints={[
+            { maxWidth: 700, cols: 2 },
+          ]}
+          spacing="lg"
+          mt="lg"
+        >
+          <AirQualityCard className="col-span-2" data={mockData.result.realtime?.air_quality} />
         </SimpleGrid>
       </Container>
     </AppShell>

@@ -14,7 +14,7 @@ export default function CityOverview(
   { city, highTemperature, lowTemperature, temperature, skycon }: CityOverviewProps,
 ) {
   return (
-    <Center py="lg">
+    <Center py={64}>
       <Flex justify="center" align="center" direction="column">
         <Group spacing="sm">
           <Location size={16} />
