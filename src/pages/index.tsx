@@ -7,6 +7,7 @@ import { WeatherData } from '@/types/weather';
 import HourlyCard from '@/components/HourlyCard';
 import WindCard from '@/components/WindCard';
 import SunCard from '@/components/SunCard';
+import ExtraCard from '@/components/ExtraCard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,15 +26,21 @@ export default function Home() {
           skycon={mockData.result.realtime?.skycon}
         />
         <SimpleGrid
-          cols={4}
-          breakpoints={[{ maxWidth: 700, cols: 2 }]}
+          cols={2}
+          breakpoints={[{ maxWidth: 768, cols: 1 }]}
           spacing="lg"
           mt="lg"
         >
-          <AirQualityCard className="col-span-2" data={mockData.result.realtime?.air_quality} />
-          <HourlyCard className="col-span-2" data={mockData.result.hourly} />
-          <WindCard data={mockData.result.realtime?.wind} />
-          <SunCard data={mockData.result.daily?.astro[0]} />
+          <AirQualityCard data={mockData.result.realtime?.air_quality} />
+          <HourlyCard data={mockData.result.hourly} />
+          <SimpleGrid cols={2}>
+            <WindCard data={mockData.result.realtime?.wind} />
+            <SunCard data={mockData.result.daily?.astro[0]} />
+          </SimpleGrid>
+          <ExtraCard
+            data={mockData.result.realtime}
+            probability={mockData.result.hourly?.precipitation[0].probability}
+          />
         </SimpleGrid>
         <Text align="center" size="sm" mt="lg">
           <span className="opacity-60">数据来源：</span>

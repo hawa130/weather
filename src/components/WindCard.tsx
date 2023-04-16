@@ -69,7 +69,7 @@ export default function WindCard({ data, ...props }: WindCardProps) {
           <Text weight="bold">{windText}</Text>
           <Flex columnGap="md" wrap="wrap">
             <Text size="sm" weight="bold">{windLevel}</Text>
-            <Text size="sm" opacity={0.8}>{data?.speed.toFixed(0) ?? '--'} m/s</Text>
+            <Text size="sm" opacity={0.8}>{data?.speed.toFixed(0) ?? '--'} km/h</Text>
           </Flex>
         </Box>
         <Center mt={-20}>
