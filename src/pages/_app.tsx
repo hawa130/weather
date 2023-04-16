@@ -9,6 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <title>Hanwan Weather</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+        <script src="/iconfont.js" />
       </Head>
 
       <MantineProvider

@@ -33,7 +33,7 @@ export default function Home() {
         >
           <AirQualityCard data={mockData.result.realtime?.air_quality} />
           <HourlyCard data={mockData.result.hourly} />
-          <SimpleGrid cols={2}>
+          <SimpleGrid cols={2} spacing="lg">
             <WindCard data={mockData.result.realtime?.wind} />
             <SunCard data={mockData.result.daily?.astro[0]} />
           </SimpleGrid>
