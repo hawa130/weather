@@ -44,7 +44,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
             yField="temperature"
             xAxis={{
               label: {
-                formatter: (k, _, index) => {
+                formatter: (k, _, _index) => {
                   const date = new Date(k);
                   const hour = date.getHours();
                   if (hour === 0) return `${date.getMonth() + 1}月${date.getDate()}日`;
@@ -91,17 +91,17 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                       {date.getMonth() + 1}/{date.getDate()} {date.getHours()}:00
                     </div>
                     <div className="whitespace-nowrap">
-                    <span className="text-lg font-bold">
-                      {data.temperature.toFixed(0) ?? '--'}°
-                    </span>
+                      <span className="text-lg font-bold">
+                        {data.temperature.toFixed(0) ?? '--'}°
+                      </span>
                       <span className="ml-1 text-sm">
-                      {getSkyConText(data.skycon)}
-                    </span>
+                        {getSkyConText(data.skycon)}
+                      </span>
                     </div>
                     <div className="text-xs whitespace-nowrap">
-                    <span className="px-1 rounded" style={{ backgroundColor: getAQIColor(data.aqi) }}>
-                      {getAQIText(data.aqi)}
-                    </span>
+                      <span className="px-1 rounded" style={{ backgroundColor: getAQIColor(data.aqi) }}>
+                        {data.aqi} {getAQIText(data.aqi)}
+                      </span>
                     </div>
                   </div>
                 );

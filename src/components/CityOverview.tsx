@@ -1,6 +1,6 @@
 import { Center, Flex, Group, Text } from '@mantine/core';
 import { getSkyConText, SkyConType } from '@/types/skycon';
-import { Location } from 'tabler-icons-react';
+import { ChevronDown, ChevronUp, Location } from 'tabler-icons-react';
 
 export interface CityOverviewProps {
   city?: string;
@@ -25,9 +25,15 @@ export default function CityOverview(
           <span className="inline-block w-0">°</span>
         </Text>
         <Text>{skycon ? getSkyConText(skycon) : '--'}</Text>
-        <Flex gap="sm">
-          <Text size="sm">最高 {highTemperature?.toFixed(0) ?? '--'}°</Text>
-          <Text size="sm">最低 {lowTemperature?.toFixed(0) ?? '--'}°</Text>
+        <Flex gap="md">
+          <Flex align="center" gap="xs">
+            <ChevronUp size={16} />
+            <Text size="sm" className="whitespace-nowrap">{highTemperature?.toFixed(0) ?? '--'}℃</Text>
+          </Flex>
+          <Flex align="center" gap="xs">
+            <ChevronDown size={16} />
+            <Text size="sm" className="whitespace-nowrap">{lowTemperature?.toFixed(0) ?? '--'}℃</Text>
+          </Flex>
         </Flex>
       </Flex>
     </Center>

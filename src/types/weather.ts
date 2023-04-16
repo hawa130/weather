@@ -6,7 +6,7 @@ import { WeatherAlert } from '@/types/alert';
 import { LocationType } from '@/types/general';
 
 export interface WeatherData {
-  status: string;
+  status: 'ok';
   api_version: string;
   api_status: string;
   lang: string;
@@ -24,4 +24,19 @@ export interface WeatherData {
     primary: number;
     forecast_keypoint?: string;
   };
+}
+
+export interface WeatherDataError {
+  status: 'failed';
+  lang: string;
+  unit: string;
+  tzshift: number;
+  now: number;
+  start: number;
+  dailysteps: number;
+  hourlysteps: number;
+  lng: number;
+  lat: number;
+  error: string;
+  api_version: string;
 }
