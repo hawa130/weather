@@ -12,18 +12,53 @@ import DailyCard from '@/components/DailyCard';
 import { getWeatherBg } from '@/utils/weather';
 import axios, { AxiosResponse } from 'axios';
 import { fetchWeatherData } from '@/pages/api/weather';
+import { useEffect, useMemo, useState } from 'react';
+import { getLocation } from '@/utils/location';
+import { ReGeocodeResult } from '@/types/location';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function Home({ initData, key }: { initData?: WeatherData, key: string }) {
-  const { data: axiosData } = useSWR<AxiosResponse<WeatherData>>('/api/weather', axios.get);
-  const data = axiosData?.data ?? initData;
+export default function Home({ initData, AMapKey }: { initData?: WeatherData, AMapKey: string }) {
+  const [coord, setCoord] = useState<string>();
+
+  const { data: weatherAxiosData } = useSWR<AxiosResponse<WeatherData>>(
+    coord ? ['/api/weather', coord] : null,
+    ([url, coord]: [string, string | undefined]) => axios.get(url, { params: { coord } }),
+  );
+  const data = weatherAxiosData?.data ?? initData;
+
+  const { data: geoAxiosData } = useSWR<AxiosResponse<ReGeocodeResult>>(
+    coord ? ['/api/geocode', coord] : null,
+    ([url, coord]: [string, string | undefined]) => axios.get(url, { params: { coord } }),
+    { revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false },
+  );
+  const geoData = geoAxiosData?.data;
+
+  const handleGetLocation = () => {
+    getLocation(AMapKey)
+      .then((result) => setCoord(result.position.toString()));
+  };
+
+  useEffect(() => {
+    handleGetLocation();
+  }, []);
+
+  const city = useMemo(() => {
+    if (geoData) {
+      const district = geoData.regeocode.addressComponent.district;
+      const cityData = geoData.regeocode.addressComponent.city;
+      const city = Array.isArray(cityData) ? geoData.regeocode.addressComponent.province : cityData;
+      return `${city}${district}`;
+    }
+    return undefined;
+  }, [geoData]);
 
   return (
     <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(data?.result?.realtime?.skycon)}`}>
       <Container size="lg" p={0}>
         <CityOverview
-          city="西安市长安区"
+          city={city}
+          street={geoData?.regeocode.addressComponent.streetNumber.street}
           temperature={data?.result?.realtime?.temperature}
           highTemperature={data?.result?.daily?.temperature[0].max}
           lowTemperature={data?.result?.daily?.temperature[0].min}
@@ -37,15 +72,17 @@ export default function Home({ initData, key }: { initData?: WeatherData, key: s
         >
           <AirQualityCard data={data?.result?.realtime?.air_quality} />
           <HourlyCard data={data?.result?.hourly} />
-          <SimpleGrid cols={2} spacing="lg">
-            <WindCard data={data?.result?.realtime?.wind} />
-            <SunCard data={data?.result?.daily?.astro[0]} />
-          </SimpleGrid>
-          <ExtraCard
-            data={data?.result?.realtime}
-            probability={data?.result?.hourly?.precipitation[0].probability}
-          />
           <DailyCard className="col-span-1" data={data?.result?.daily} />
+          <SimpleGrid cols={1} spacing="lg">
+            <SimpleGrid cols={2} spacing="lg">
+              <WindCard data={data?.result?.realtime?.wind} />
+              <SunCard data={data?.result?.daily?.astro[0]} />
+            </SimpleGrid>
+            <ExtraCard
+              data={data?.result?.realtime}
+              probability={data?.result?.hourly?.precipitation[0].probability}
+            />
+          </SimpleGrid>
         </SimpleGrid>
         <Text align="center" size="sm" mt="lg">
           <span className="opacity-60">数据来源：</span>
@@ -58,8 +95,8 @@ export default function Home({ initData, key }: { initData?: WeatherData, key: s
 
 export async function getServerSideProps() {
   const data = await fetchWeatherData();
-  const amapKey = process.env.AMAP_KEY;
+  const AMapKey = process.env.AMAP_JS_KEY;
   return {
-    props: { initData: data, key: amapKey },
+    props: { initData: data, AMapKey },
   };
 }

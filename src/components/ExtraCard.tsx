@@ -32,7 +32,7 @@ export default function ExtraCard({ data, probability, ...props }: ExtraCardProp
         />
         <StatDataDisplay
           icon={<Droplet size={16} />} title="湿度"
-          value={data?.humidity != undefined ? data.humidity * 100 : '--'} uint="%"
+          value={data?.humidity != undefined ? (data.humidity * 100).toFixed(0) : '--'} uint="%"
         />
         <StatDataDisplay
           icon={<Eye size={16} />} title="能见度"
@@ -44,11 +44,11 @@ export default function ExtraCard({ data, probability, ...props }: ExtraCardProp
         />
         <StatDataDisplay
           icon={<Umbrella size={16} />} title="降水概率"
-          value={probability != undefined ? probability * 100 : '--'} uint="%"
+          value={probability != undefined ? (probability * 100).toFixed(0) : '--'} uint="%"
         />
         <StatDataDisplay
           icon={<Cloud size={16} />} title="云量"
-          value={data?.cloudrate != undefined ? data.cloudrate * 100 : '--'} uint="%"
+          value={data?.cloudrate != undefined ? (data.cloudrate * 100).toFixed(0) : '--'} uint="%"
         />
         <StatDataDisplay
           icon={<Gauge size={16} />} title="气压"

@@ -1,6 +1,6 @@
 import DataCard, { DataCardProps } from '@/components/DataCard';
 import { WindType } from '@/types/general';
-import { ArrowUpTail, Wind } from 'tabler-icons-react';
+import { ArrowDownTail, Wind } from 'tabler-icons-react';
 import { Box, Center, Flex, Text } from '@mantine/core';
 import { useMemo } from 'react';
 
@@ -75,7 +75,7 @@ export default function WindCard({ data, ...props }: WindCardProps) {
         <Center mt={-20}>
           <Box className="w-20 h-20 relative rounded-full border-[20px] border-semi-transparent">
             {data?.direction != undefined ? (
-              <ArrowUpTail
+              <ArrowDownTail
                 className="absolute top-1/2 left-1/2"
                 size={36}
                 strokeWidth={1}

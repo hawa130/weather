@@ -21,7 +21,7 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<WeatherData>,
 ) {
-  fetchWeatherData(req.query.coordinate as string | undefined)
+  fetchWeatherData(req.query?.coord as string | undefined)
     .then((data) => {
       res.status(200).json(data);
     });

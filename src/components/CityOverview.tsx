@@ -5,26 +5,28 @@ import WeatherIcon from '@/components/WeatherIcon';
 
 export interface CityOverviewProps {
   city?: string;
+  street?: string;
   highTemperature?: number;
   lowTemperature?: number;
   temperature?: number;
   skycon?: SkyConType;
+  onGetLocation?: () => void;
 }
 
 export default function CityOverview(
-  { city, highTemperature, lowTemperature, temperature, skycon }: CityOverviewProps,
+  { city, street, highTemperature, lowTemperature, temperature, skycon, onGetLocation }: CityOverviewProps,
 ) {
   return (
     <Container
       pt={16} pb={64} px={48}
       className="rounded-lg max-w-md"
     >
-      <Group position="apart" mx={-32} mb={64}>
-        <Group spacing="sm">
+      <Group position="center" mb={64}>
+        <Group spacing="sm" onClick={onGetLocation}>
           <Location size={14} />
-          <Text>{city ?? '--'}</Text>
+          <Text className="whitespace-nowrap">{city ?? '------'}</Text>
         </Group>
-        <Text>竹园一路</Text>
+        <Text className="whitespace-nowrap">{street ?? '----'}</Text>
       </Group>
       <Group position="apart">
         <Stack spacing="xs" align="center">
