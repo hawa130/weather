@@ -74,7 +74,7 @@ export default function WindCard({ data, ...props }: WindCardProps) {
         </Box>
         <Center mt={-20}>
           <Box className="w-20 h-20 relative rounded-full border-[20px] border-semi-transparent">
-            {data?.direction ? (
+            {data?.direction != undefined ? (
               <ArrowUpTail
                 className="absolute top-1/2 left-1/2"
                 size={36}

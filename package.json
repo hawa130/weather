@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
     "@ant-design/charts": "^1.4.2",
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",

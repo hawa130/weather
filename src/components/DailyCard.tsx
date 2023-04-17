@@ -99,9 +99,7 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   const [left, right] = calcBoundary(lower, upper);
 
   const bgSize = 300 / (right - left);
-
   const bgPos = (left + 1) / 3 * 100;
-  console.table({ min, max, left, right, bgSize, bgPos });
 
   return (
     <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent">

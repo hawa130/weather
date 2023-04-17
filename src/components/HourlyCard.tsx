@@ -63,8 +63,9 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                 domStyles: {
                   'g2-tooltip': {
                     borderRadius: '0.5rem',
-                    background: '#6274A2',
+                    background: '#fffe',
                     boxShadow: 'none',
+                    padding: 0,
                   },
                 },
                 customContent: (k, v) => {
@@ -72,7 +73,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                   const data = v[0].data as PlotData;
                   const date = new Date(data.time);
                   return (
-                    <div className="py-2 text-white">
+                    <div className="py-2 px-3 rounded-lg text-gray-600 border-t">
                       <div className="text-xs whitespace-nowrap">
                         {date.getMonth() + 1}/{date.getDate()} {date.getHours()}:00
                       </div>
@@ -85,7 +86,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                       </span>
                       </div>
                       <div className="text-xs whitespace-nowrap">
-                        <AQIBadge aqi={data.aqi} showVal />
+                        <AQIBadge className="bg-gray-200" aqi={data.aqi} showVal />
                       </div>
                     </div>
                   );
