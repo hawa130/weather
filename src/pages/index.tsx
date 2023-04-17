@@ -14,12 +14,14 @@ import axios, { AxiosResponse } from 'axios';
 import { fetchWeatherData } from '@/pages/api/weather';
 import { useEffect, useMemo, useState } from 'react';
 import { getLocation } from '@/utils/location';
-import { ReGeocodeResult } from '@/types/location';
+import { GeolocationError, ReGeocodeResult } from '@/types/location';
+import { notifications, Notifications } from '@mantine/notifications';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home({ initData, AMapKey }: { initData?: WeatherData, AMapKey: string }) {
   const [coord, setCoord] = useState<string>();
+  const [locating, setLocating] = useState<boolean>(false);
 
   const { data: weatherAxiosData } = useSWR<AxiosResponse<WeatherData>>(
     coord ? ['/api/weather', coord] : null,
@@ -27,7 +29,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   );
   const data = weatherAxiosData?.data ?? initData;
 
-  const { data: geoAxiosData } = useSWR<AxiosResponse<ReGeocodeResult>>(
+  const { data: geoAxiosData, isLoading: geoFetching } = useSWR<AxiosResponse<ReGeocodeResult>>(
     coord ? ['/api/geocode', coord] : null,
     ([url, coord]: [string, string | undefined]) => axios.get(url, { params: { coord } }),
     { revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false },
@@ -35,8 +37,29 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   const geoData = geoAxiosData?.data;
 
   const handleGetLocation = () => {
+    setLocating(true);
     getLocation(AMapKey)
-      .then((result) => setCoord(result.position.toString()));
+      .then((result) => {
+        setCoord(result.position.toString());
+      })
+      .catch((err: GeolocationError) => notifications.show({
+        radius: 'md',
+        color: 'red',
+        title: '定位失败',
+        message: err.message,
+        styles: (theme) => ({
+          root: {
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: 'rgba(255, 255, 255, 0.17)',
+            backdropFilter: 'blur(8px)',
+          },
+          description: {
+            color: theme.white,
+            opacity: 0.8,
+          },
+        }),
+      }))
+      .finally(() => setLocating(false));
   };
 
   useEffect(() => {
@@ -63,6 +86,8 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           highTemperature={data?.result?.daily?.temperature[0].max}
           lowTemperature={data?.result?.daily?.temperature[0].min}
           skycon={data?.result?.realtime?.skycon}
+          geoLoading={locating || geoFetching}
+          onGetLocation={handleGetLocation}
         />
         <SimpleGrid
           cols={2}
@@ -89,6 +114,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           <a className="opacity-60 hover:opacity-100" href="https://www.caiyunapp.com/" target="_blank">彩云天气</a>
         </Text>
       </Container>
+      <Notifications />
     </AppShell>
   );
 }

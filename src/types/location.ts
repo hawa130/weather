@@ -89,7 +89,7 @@ export interface AOI {
   name: string;
   adcode: string;
   location: string;
-  area: number;
+  area: string;
   distance: string;
   type: string;
 }

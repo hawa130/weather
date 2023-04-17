@@ -11,22 +11,23 @@ export interface CityOverviewProps {
   temperature?: number;
   skycon?: SkyConType;
   onGetLocation?: () => void;
+  geoLoading?: boolean;
 }
 
 export default function CityOverview(
-  { city, street, highTemperature, lowTemperature, temperature, skycon, onGetLocation }: CityOverviewProps,
+  { city, street, highTemperature, lowTemperature, temperature, skycon, onGetLocation, geoLoading }: CityOverviewProps,
 ) {
   return (
     <Container
       pt={16} pb={64} px={48}
       className="rounded-lg max-w-md"
     >
-      <Group position="center" mb={64}>
-        <Group spacing="sm" onClick={onGetLocation}>
+      <Group position="center" className="cursor-pointer" onClick={geoLoading ? undefined : onGetLocation} mb={64}>
+        <Group spacing="sm">
           <Location size={14} />
-          <Text className="whitespace-nowrap">{city ?? '------'}</Text>
+          <Text className="whitespace-nowrap">{city ?? (geoLoading ? '定位中...' : '------')}</Text>
         </Group>
-        <Text className="whitespace-nowrap">{street ?? '----'}</Text>
+        <Text className="whitespace-nowrap">{geoLoading && city ? '定位中...' : street}</Text>
       </Group>
       <Group position="apart">
         <Stack spacing="xs" align="center">
