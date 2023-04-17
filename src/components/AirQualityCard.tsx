@@ -25,7 +25,7 @@ export function getAQIColor(aqi?: number): string {
 }
 
 export function getAQIText(aqi?: number): string {
-  if (aqi == undefined) return '无数据';
+  if (aqi == undefined) return '--';
   if (aqi <= 50) return '优';
   if (aqi <= 100) return '良';
   if (aqi <= 150) return '轻度污染';

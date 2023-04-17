@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      transitionProperty: {
+        'spacing': 'margin, padding',
+      },
       borderColor: {
         'semi-transparent': 'rgba(255, 255, 255, 0.17)',
       },

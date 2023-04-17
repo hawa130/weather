@@ -9,14 +9,14 @@ import AQIBadge from '@/components/AQIBadge';
 import { useElementSize } from '@mantine/hooks';
 
 export type DailyRowData = {
-  date: string;
-  skycon: SkyConType;
-  precipitation: number;
-  precipitationProbability: number;
-  temperature: number;
-  temperatureMax: number;
-  temperatureMin: number;
-  AQI: number;
+  date?: string;
+  skycon?: SkyConType;
+  precipitation?: number;
+  precipitationProbability?: number;
+  temperature?: number;
+  temperatureMax?: number;
+  temperatureMin?: number;
+  AQI?: number;
 };
 
 export interface DailyCardProps extends Omit<DataCardProps, 'icon' | 'title'> {
@@ -25,20 +25,22 @@ export interface DailyCardProps extends Omit<DataCardProps, 'icon' | 'title'> {
 
 export default function DailyCard({ data, ...props }: DailyCardProps) {
   const [rows, minT, maxT] = useMemo(() => {
-    let minTemperature = Infinity;
-    let maxTemperature = -Infinity;
-    return [Array.from({ length: data?.temperature.length ?? 0 }, (_, i): DailyRowData => {
-      minTemperature = Math.min(minTemperature, data!.temperature[i].min);
-      maxTemperature = Math.max(maxTemperature, data!.temperature[i].max);
+    let minTemperature: number | undefined = Infinity;
+    let maxTemperature: number | undefined = -Infinity;
+    return [Array.from({ length: data?.temperature.length ?? 10 }, (_, i): DailyRowData => {
+      minTemperature = data?.temperature[i].min && minTemperature
+        ? Math.min(minTemperature, data.temperature[i].min) : undefined;
+      maxTemperature = data?.temperature[i].max && maxTemperature
+        ? Math.max(maxTemperature, data.temperature[i].max) : undefined;
       return {
-        date: data!.temperature[i].date,
-        skycon: data!.skycon[i].value,
-        precipitation: data!.precipitation[i].avg,
-        precipitationProbability: data!.precipitation[i].probability,
-        temperature: data!.temperature[i].avg,
-        temperatureMax: data!.temperature[i].max,
-        temperatureMin: data!.temperature[i].min,
-        AQI: data!.air_quality.aqi[i].avg.chn,
+        date: data?.temperature[i].date,
+        skycon: data?.skycon[i].value,
+        precipitation: data?.precipitation[i].avg,
+        precipitationProbability: data?.precipitation[i].probability,
+        temperature: data?.temperature[i].avg,
+        temperatureMax: data?.temperature[i].max,
+        temperatureMin: data?.temperature[i].min,
+        AQI: data?.air_quality.aqi[i].avg.chn,
       };
     }), minTemperature, maxTemperature];
   }, [data]);
@@ -46,11 +48,11 @@ export default function DailyCard({ data, ...props }: DailyCardProps) {
   const { ref, width } = useElementSize();
 
   return (
-    <DataCard ref={ref} {...props} icon={<CalendarEvent size={14} />} title={`${rows.length}日预报`}>
+    <DataCard ref={ref} {...props} icon={<CalendarEvent size={14} />} title={`10日预报`}>
       <Table style={{ tableLayout: 'fixed' }}>
         <tbody>
-        {rows.map((row) => {
-          const date = new Date(row.date);
+        {rows.map((row, index) => {
+          const date = row.date ? new Date(row.date) : new Date(Date.now() + 86400000 * index);
           return (
             <tr key={row.date}>
               <td style={{ border: 'none', width: width > 400 ? 80 : 40 }}>
@@ -59,25 +61,25 @@ export default function DailyCard({ data, ...props }: DailyCardProps) {
               </td>
               {width > 320 ? (
                 <td style={{ border: 'none', textAlign: 'center', width: 80 }}>
-                  <AQIBadge aqi={row.AQI} showVal short />
+                  <AQIBadge aqi={row.AQI} showVal={row.AQI != undefined} short />
                 </td>
               ) : null}
               <td style={{ border: 'none', textAlign: width > 500 ? 'right' : 'center', width: width > 500 ? 64 : 32 }}>
-                <WeatherIcon className="w-5 h-5 inline-block" skycon={row.skycon} />
+                {row.skycon ? <WeatherIcon className="w-5 h-5 inline-block" skycon={row.skycon} /> : null}
               </td>
               {width > 500 ? (
                 <td style={{ border: 'none', textAlign: 'left', opacity: 0.8, width: 64 }}>
-                  {getSkyConText(row.skycon)}
+                  {row.skycon ? getSkyConText(row.skycon) : '--'}
                 </td>
               ) : null}
               <td style={{ border: 'none', textAlign: 'right', opacity: 0.8, width: 40 }}>
-                {row.temperatureMin.toFixed(0)}°
+                {row.temperatureMin?.toFixed(0) ?? '--'}°
               </td>
               <td style={{ border: 'none', width: width > 450 ? 120 : '100%' }}>
                 <TemperatureIndicator min={row.temperatureMin} max={row.temperatureMax} lower={minT} upper={maxT} />
               </td>
               <td style={{ border: 'none', width: 40 }}>
-                {row.temperatureMax.toFixed(0)}°
+                {row.temperatureMax?.toFixed(0) ?? '--'}°
               </td>
             </tr>
           );
@@ -89,14 +91,15 @@ export default function DailyCard({ data, ...props }: DailyCardProps) {
 }
 
 interface TemperatureIndicatorProps {
-  min: number;
-  max: number;
-  lower: number;
-  upper: number;
+  min?: number;
+  max?: number;
+  lower?: number;
+  upper?: number;
 }
 
 function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorProps) {
-  const [left, right] = calcBoundary(lower, upper);
+  const isValid = min != undefined && max != undefined && lower != undefined && upper != undefined;
+  const [left, right] = isValid ? calcBoundary(lower, upper) : [0, 1];
 
   const bgSize = 300 / (right - left);
   const bgPos = (left + 1) / 3 * 100;
@@ -104,10 +107,11 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   return (
     <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent">
       <div
+        className="transition-spacing"
         style={{
           height: '100%',
-          marginLeft: `${(min - lower) / (upper - lower) * 100}%`,
-          marginRight: `${(upper - max) / (upper - lower) * 100}%`,
+          marginLeft: isValid ? `${(min - lower) / (upper - lower) * 100}%` : '100%',
+          marginRight: isValid ? `${(upper - max) / (upper - lower) * 100}%` : '0%',
           clipPath: 'inset(0 round 4px)',
         }}
       >

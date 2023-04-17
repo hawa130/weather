@@ -30,7 +30,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
   type PlotData = typeof plotData[number];
 
   return (
-    <DataCard {...props} icon={<Clock size={14} />} title={`${plotData.length}小时预报`}>
+    <DataCard {...props} icon={<Clock size={14} />} title="48小时预报">
       {data ? <>
         <Text size="sm" align="center">{data?.description}</Text>
         <Box className="overflow-auto" mx={-12} mb={-8}>
@@ -86,7 +86,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                       </span>
                       </div>
                       <div className="text-xs whitespace-nowrap">
-                        <AQIBadge className="bg-gray-200" aqi={data.aqi} showVal />
+                        <AQIBadge className="!bg-gray-200" aqi={data.aqi} showVal />
                       </div>
                     </div>
                   );
@@ -115,7 +115,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
             })}
           </SimpleGrid>
         </Box>
-      </> : <Text py={64} align="center">暂无数据</Text>}
+      </> : <Text py={86} align="center">暂无数据</Text>}
     </DataCard>
   );
 }

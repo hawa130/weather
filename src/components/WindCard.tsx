@@ -74,14 +74,12 @@ export default function WindCard({ data, ...props }: WindCardProps) {
         </Box>
         <Center mt={-20}>
           <Box className="w-20 h-20 relative rounded-full border-[20px] border-semi-transparent">
-            {data?.direction != undefined ? (
-              <ArrowDownTail
-                className="absolute top-1/2 left-1/2"
-                size={36}
-                strokeWidth={1}
-                style={{ transform: `translate(-50%, -50%) rotate(${data.direction}deg)` }}
-              />
-            ) : null}
+            <ArrowDownTail
+              className="absolute top-1/2 left-1/2 transition-transform duration-500"
+              size={36}
+              strokeWidth={1}
+              style={{ transform: `translate(-50%, -50%) rotate(${data?.direction ?? 180}deg)` }}
+            />
             <Text
               className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full"
               size="xs" opacity={0.8}
