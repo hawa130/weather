@@ -15,7 +15,7 @@ export default function handler(
     throw new Error('Location coordinate is not defined');
   }
 
-  const url = `https://api.caiyunapp.com/v2.6/${token}/${coord}/weather.json?alert=true`;
+  const url = `https://api.caiyunapp.com/v2.6/${token}/${coord}/weather.json?alert=true&dailysteps=10`;
   fetch(url)
     .then((response) => response.json())
     .then((data) => {

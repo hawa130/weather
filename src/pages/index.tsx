@@ -8,6 +8,7 @@ import HourlyCard from '@/components/HourlyCard';
 import WindCard from '@/components/WindCard';
 import SunCard from '@/components/SunCard';
 import ExtraCard from '@/components/ExtraCard';
+import DailyCard from '@/components/DailyCard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,7 +17,7 @@ const mockData = Data as WeatherData;
 
 export default function Home() {
   return (
-    <AppShell className={`${inter.className} bg-gradient-blue bg-blue-grey bg-blend-soft-light`}>
+    <AppShell className={`${inter.className} bg-fixed bg-gradient-blue bg-blue-grey bg-blend-soft-light`}>
       <Container size="lg" p={0}>
         <CityOverview
           city="西安市长安区"
@@ -41,6 +42,7 @@ export default function Home() {
             data={mockData.result.realtime}
             probability={mockData.result.hourly?.precipitation[0].probability}
           />
+          <DailyCard className="col-span-1" data={mockData.result.daily} />
         </SimpleGrid>
         <Text align="center" size="sm" mt="lg">
           <span className="opacity-60">数据来源：</span>

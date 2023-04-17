@@ -16,10 +16,10 @@ export default function CityOverview(
 ) {
   return (
     <Container
-      py={32} px={48}
-      className="bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent max-w-md"
+      pt={16} pb={64} px={48}
+      className="rounded-lg max-w-md"
     >
-      <Group position="apart" mx={-24} mt={-16} mb={24}>
+      <Group position="apart" mx={-32} mb={64}>
         <Group spacing="sm">
           <Location size={14} />
           <Text>{city ?? '--'}</Text>
