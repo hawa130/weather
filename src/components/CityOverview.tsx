@@ -2,6 +2,7 @@ import { Box, Container, Flex, Group, Stack, Text } from '@mantine/core';
 import { getSkyConText, SkyConType } from '@/types/skycon';
 import { ChevronDown, ChevronUp, Location } from 'tabler-icons-react';
 import WeatherIcon from '@/components/WeatherIcon';
+import { useMemo } from 'react';
 
 export interface CityOverviewProps {
   city?: string;
@@ -11,23 +12,42 @@ export interface CityOverviewProps {
   temperature?: number;
   skycon?: SkyConType;
   onGetLocation?: () => void;
+  locating?: boolean;
   geoLoading?: boolean;
+  showLocationIcon?: boolean;
 }
 
 export default function CityOverview(
-  { city, street, highTemperature, lowTemperature, temperature, skycon, onGetLocation, geoLoading }: CityOverviewProps,
+  {
+    city,
+    street,
+    highTemperature,
+    lowTemperature,
+    temperature,
+    skycon,
+    onGetLocation,
+    locating,
+    geoLoading,
+    showLocationIcon,
+  }: CityOverviewProps,
 ) {
+  const statusText = useMemo(() => {
+    if (locating) return '定位中...';
+    if (geoLoading) return '获取位置信息...';
+    return undefined;
+  }, [locating, geoLoading]);
+
   return (
     <Container
       pt={16} pb={64} px={48}
       className="rounded-lg max-w-md"
     >
-      <Group position="center" className="cursor-pointer" onClick={geoLoading ? undefined : onGetLocation} mb={64}>
+      <Group position="center" className="cursor-pointer" onClick={onGetLocation} mb={64}>
         <Group spacing="sm">
-          <Location size={14} />
-          <Text className="whitespace-nowrap">{city ?? (geoLoading ? '定位中...' : '------')}</Text>
+          {showLocationIcon ? <Location size={14} /> : undefined}
+          <Text className="whitespace-nowrap">{city ?? (statusText ?? '------')}</Text>
         </Group>
-        <Text className="whitespace-nowrap">{geoLoading && city ? '定位中...' : street}</Text>
+        <Text className="whitespace-nowrap">{statusText && city ? statusText : street}</Text>
       </Group>
       <Group position="apart">
         <Stack spacing="xs" align="center">

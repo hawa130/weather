@@ -124,7 +124,7 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
         }}
       >
         <div
-          className="absolute inset-0 bg-gradient-linear origin-left"
+          className="absolute inset-0 bg-gradient-linear origin-left transition-transform duration-500"
           style={{
             transform: `scaleX(${bgSize}%) translateX(-${bgPos}%)`,
           }}

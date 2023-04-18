@@ -1,5 +1,5 @@
 import { Inter } from 'next/font/google';
-import { AppShell, Container, SimpleGrid, Text } from '@mantine/core';
+import { AppShell, Box, Container, Modal, NavLink, SimpleGrid, Text } from '@mantine/core';
 import useSWR from 'swr';
 import CityOverview from '@/components/CityOverview';
 import AirQualityCard from '@/components/AirQualityCard';
@@ -18,12 +18,17 @@ import { GeolocationError, ReGeocodeResult } from '@/types/location';
 import { notifications, Notifications } from '@mantine/notifications';
 import MinutelyCard from '@/components/MinutelyCard';
 import AlertCard from '@/components/AlertCard';
+import { useDisclosure } from '@mantine/hooks';
+import { MapPin } from 'tabler-icons-react';
+import GeoMap, { parsePosition } from '@/components/GeoMap';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home({ initData, AMapKey }: { initData?: WeatherData, AMapKey: string }) {
   const [coord, setCoord] = useState<string>();
   const [locating, setLocating] = useState<boolean>(false);
+  const [isManualLocated, setIsManualLocated] = useState<boolean>(false);
+  const [opened, { open, close }] = useDisclosure(false);
 
   const { data } = useSWR<WeatherData>(
     coord ? ['/api/weather', coord] : null,
@@ -44,6 +49,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     getLocation(AMapKey)
       .then((result) => {
         setCoord(result.position.toString());
+        setIsManualLocated(false);
       })
       .catch((err: GeolocationError) => notifications.show({
         radius: 'md',
@@ -112,8 +118,10 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           highTemperature={data?.result?.daily?.temperature[0].max}
           lowTemperature={data?.result?.daily?.temperature[0].min}
           skycon={data?.result?.realtime?.skycon}
-          geoLoading={locating || geoFetching}
-          onGetLocation={handleGetLocation}
+          locating={locating}
+          geoLoading={geoFetching}
+          showLocationIcon={locating || !isManualLocated}
+          onGetLocation={open}
         />
         {data?.result?.alert?.content.length ? (
           <AlertCard mt={16} data={data?.result?.alert?.content} />
@@ -147,6 +155,33 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
         </Text>
       </Container>
       <Notifications position="top-right" />
+      <Modal
+        keepMounted opened={opened} onClose={close} title="位置" centered radius="md"
+        styles={(_theme) => ({
+          content: {
+            backgroundColor: 'rgba(50, 50, 50, 0.4)',
+            backdropFilter: 'blur(8px)',
+          },
+          header: {
+            backgroundColor: 'transparent',
+          },
+        })}
+      >
+        <Box mx={-12}>
+          <NavLink px={20} label="我的位置" disabled={locating} icon={<MapPin size={16} />}
+                   onClick={() => handleGetLocation()} />
+          <GeoMap
+            AMapKey={AMapKey}
+            coordinate={parsePosition(coord)}
+            onChangeCoord={c => {
+              setIsManualLocated(true);
+              setCoord(c.toString());
+              close();
+            }}
+            pt="md"
+          />
+        </Box>
+      </Modal>
     </AppShell>
   );
 }

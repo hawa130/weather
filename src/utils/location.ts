@@ -25,3 +25,8 @@ export function getLocation(key: string) {
     });
   });
 }
+
+export async function getMapObject(key: string, plugins: string[] = []) {
+  const AMapLoader = await importAMapLoader();
+  return await AMapLoader.load({ key, version: '2.0', plugins });
+}

@@ -1,3 +1,5 @@
+import LngLat = AMap.LngLat;
+
 export interface GeolocationResult {
   position: LngLat;
   accuracy: number;
@@ -7,24 +9,17 @@ export interface GeolocationResult {
   info: string;
 }
 
-export interface LngLat {
-  offset: (w: number, s: number) => LngLat;
-  distance: (lnglat: LngLat | LngLat[]) => number;
-  getLng: () => number;
-  getLat: () => number;
-  equals: (lnglat: LngLat) => boolean;
-  toString: () => string;
-}
-
 export interface ReGeocodeResult {
-  status: number,
+  status: string,
   info: string,
+  infocode: string,
   regeocode: {
     addressComponent: AddressComponent;
     roads: Road[];
     roadinters: Cross[];
     pois: POI[];
     aois: AOI[];
+    formatted_address: string;
   }
 }
 
