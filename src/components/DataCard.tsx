@@ -12,7 +12,7 @@ const DataCard = forwardRef(
     return (
       <Box
         px="md" pb="sm" ref={ref}
-        className={cls(className, 'bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent flex flex-col')}
+        className={cls(className, 'bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent flex flex-col overflow-hidden')}
         {...props}
       >
         <Group py="sm" spacing="xs">

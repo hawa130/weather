@@ -104,14 +104,17 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   const bgSize = 300 / (right - left);
   const bgPos = (left + 1) / 3 * 100;
 
+  const mLeftPercent = isValid ? (min - lower) / (upper - lower) * 100 : 100;
+  const mRightPercent = isValid ? (upper - max) / (upper - lower) * 100 : 0;
+
   return (
     <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent">
       <div
         className="transition-spacing"
         style={{
           height: '100%',
-          marginLeft: isValid ? `${(min - lower) / (upper - lower) * 100}%` : '100%',
-          marginRight: isValid ? `${(upper - max) / (upper - lower) * 100}%` : '0%',
+          marginLeft: `${mLeftPercent}%`,
+          marginRight: `${mRightPercent}%`,
           clipPath: 'inset(0 round 4px)',
         }}
       >

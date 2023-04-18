@@ -1,7 +1,7 @@
 import { HourlyData } from '@/types/hourly';
 import DataCard, { DataCardProps } from '@/components/DataCard';
 import { Clock } from 'tabler-icons-react';
-import { Box, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Center, ScrollArea, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { getSkyConText } from '@/types/skycon';
@@ -31,91 +31,101 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
 
   return (
     <DataCard {...props} icon={<Clock size={14} />} title="48小时预报">
-      {data ? <>
-        <Text size="sm" align="center">{data?.description}</Text>
-        <Box className="overflow-auto" mx={-12} mb={-8}>
-          <Box h={100} w={3400}>
-            <Area
-              meta={{ temperature: { range: [0, 0.8] } }}
-              appendPadding={[8, 0, 4, 0]}
-              autoFit={false}
-              height={100}
-              width={3400}
-              data={plotData}
-              xField="time"
-              yField="temperature"
-              xAxis={{ label: null, line: null, tickLine: null }}
-              yAxis={{ label: null, grid: null }}
-              label={{
-                offsetY: -4,
-                formatter: (v) => {
-                  const data = v as PlotData;
-                  return `${data.temperature.toFixed(0)}°`;
-                },
-                style: {
-                  fill: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                },
-                autoRotate: false,
-              }}
-              tooltip={{
-                domStyles: {
-                  'g2-tooltip': {
-                    borderRadius: '0.5rem',
-                    background: '#fffe',
-                    boxShadow: 'none',
-                    padding: 0,
+      <Box className="h-full flex flex-col justify-between">
+        {data ? <>
+          <Text align="center">{data?.description}</Text>
+          <ScrollArea mx={-12} mb={-8} scrollbarSize={4} type="scroll" styles={(_theme) => ({
+            scrollbar: {
+              '&[data-orientation="horizontal"]': {
+                transition: 'height 150ms ease-in-out',
+              },
+              '&[data-orientation="horizontal"]:hover': {
+                height: '6px',
+                transition: 'height 150ms ease-in-out',
+                background: 'rgba(255,255,255,0.1)',
+              },
+            },
+          })}>
+            <Box h={100} w={3400}>
+              <Area
+                meta={{ temperature: { range: [0, 0.8] } }}
+                appendPadding={[8, 0, 4, 0]}
+                data={plotData}
+                xField="time"
+                yField="temperature"
+                xAxis={{ label: null, line: null, tickLine: null }}
+                yAxis={{ label: null, grid: null }}
+                label={{
+                  offsetY: -4,
+                  formatter: (v) => {
+                    const data = v as PlotData;
+                    return `${data.temperature.toFixed(0)}°`;
                   },
-                },
-                customContent: (k, v) => {
-                  if (!v[0]) return '';
-                  const data = v[0].data as PlotData;
-                  const date = new Date(data.time);
-                  return (
-                    <div className="py-2 px-3 rounded-lg text-gray-600 border-t">
-                      <div className="text-xs whitespace-nowrap">
-                        {date.getMonth() + 1}/{date.getDate()} {date.getHours()}:00
-                      </div>
-                      <div className="whitespace-nowrap">
+                  style: {
+                    fill: '#fff',
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                  },
+                  autoRotate: false,
+                }}
+                tooltip={{
+                  domStyles: {
+                    'g2-tooltip': {
+                      borderRadius: '0.5rem',
+                      background: '#fffe',
+                      boxShadow: 'none',
+                      padding: 0,
+                    },
+                  },
+                  customContent: (k, v) => {
+                    if (!v[0]) return '';
+                    const data = v[0].data as PlotData;
+                    const date = new Date(data.time);
+                    return (
+                      <div className="py-2 px-3 rounded-lg text-gray-600 border-t">
+                        <div className="text-xs whitespace-nowrap">
+                          {date.getMonth() + 1}/{date.getDate()} {date.getHours()}:00
+                        </div>
+                        <div className="whitespace-nowrap">
                       <span className="text-lg font-bold">
                         {data.temperature.toFixed(0) ?? '--'}°
                       </span>
-                        <span className="ml-1 text-sm">
+                          <span className="ml-1 text-sm">
                         {getSkyConText(data.skycon)}
                       </span>
+                        </div>
+                        <div className="text-xs whitespace-nowrap">
+                          <AQIBadge className="!bg-gray-200" aqi={data.aqi} showVal />
+                        </div>
                       </div>
-                      <div className="text-xs whitespace-nowrap">
-                        <AQIBadge className="!bg-gray-200" aqi={data.aqi} showVal />
-                      </div>
-                    </div>
-                  );
-                },
-              }}
-              color="#fff"
-              smooth
-              point={{ shape: 'circle', size: 2, style: { fill: '#fff' } }}
-              areaStyle={() => ({ fill: 'l(270) 0:#ffffff00 0.5:#fff 1:#fff' })}
-            />
-          </Box>
-          <SimpleGrid w={3400} cols={plotData.length} pb={8} className="justify-items-center" spacing={0}>
-            {plotData.map((data) => {
-              const date = new Date(data.time);
-              const hour = date.getHours();
-              return (
-                <Stack spacing={4} align="center" key={data.time}>
-                  <WeatherIcon className="w-5 h-5" skycon={data.skycon} />
-                  <AQIBadge aqi={data.aqi} short />
-                  <Text
-                    size="xs"
-                    opacity={0.8}>{hour === 0 ? `${date.getMonth() + 1}月${date.getDate()}日` : `${hour}:00`}
-                  </Text>
-                </Stack>
-              );
-            })}
-          </SimpleGrid>
-        </Box>
-      </> : <Text py={86} align="center">暂无数据</Text>}
+                    );
+                  },
+                }}
+                color="#fff"
+                smooth
+                point={{ shape: 'circle', size: 2, style: { fill: '#fff' } }}
+                areaStyle={() => ({ fill: 'l(270) 0:#ffffff00 0.5:#fff 1:#fff' })}
+              />
+            </Box>
+            <SimpleGrid w={3400} cols={plotData.length} pb={8} className="justify-items-center" spacing={0}>
+              {plotData.map((data) => {
+                const date = new Date(data.time);
+                const hour = date.getHours();
+                return (
+                  <Stack spacing={4} align="center" key={data.time}>
+                    <WeatherIcon className="w-5 h-5" skycon={data.skycon} />
+                    <AQIBadge aqi={data.aqi} short />
+                    <Text
+                      size="xs"
+                      opacity={0.8}>{hour === 0 ? `${date.getMonth() + 1}月${date.getDate()}日` : `${hour}:00`}
+                    </Text>
+                  </Stack>
+                );
+              })}
+            </SimpleGrid>
+          </ScrollArea>
+        </> : <Center>暂无数据</Center>}
+      </Box>
     </DataCard>
   );
 }

@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getLocation } from '@/utils/location';
 import { GeolocationError, ReGeocodeResult } from '@/types/location';
 import { notifications, Notifications } from '@mantine/notifications';
+import MinutelyCard from '@/components/MinuatelyCard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -95,7 +96,10 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           spacing="lg"
           mt="lg"
         >
-          <AirQualityCard data={data?.result?.realtime?.air_quality} />
+          <SimpleGrid cols={1} spacing="lg">
+            <MinutelyCard data={data?.result.minutely} description={data?.result.minutely?.description} />
+            <AirQualityCard data={data?.result?.realtime?.air_quality} />
+          </SimpleGrid>
           <HourlyCard data={data?.result?.hourly} />
           <DailyCard className="col-span-1" data={data?.result?.daily} />
           <SimpleGrid cols={1} spacing="lg">
@@ -114,7 +118,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           <a className="opacity-60 hover:opacity-100" href="https://www.caiyunapp.com/" target="_blank">彩云天气</a>
         </Text>
       </Container>
-      <Notifications />
+      <Notifications position="top-right" />
     </AppShell>
   );
 }

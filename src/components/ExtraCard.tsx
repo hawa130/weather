@@ -1,6 +1,6 @@
 import DataCard, { DataCardProps } from '@/components/DataCard';
 import { RealtimeData } from '@/types/realtime';
-import { Cloud, Droplet, Eye, Flare, Gauge, Radar2, Sun, Temperature, Umbrella } from 'tabler-icons-react';
+import { Cloud, DropletFilled2, Eye, Flare, Gauge, Radar2, Sun, Temperature, Umbrella } from 'tabler-icons-react';
 import { Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
@@ -31,7 +31,7 @@ export default function ExtraCard({ data, probability, ...props }: ExtraCardProp
           value={data?.apparent_temperature.toFixed(1)} uint="℃"
         />
         <StatDataDisplay
-          icon={<Droplet size={16} />} title="湿度"
+          icon={<DropletFilled2 size={16} />} title="湿度"
           value={data?.humidity != undefined ? (data.humidity * 100).toFixed(0) : '--'} uint="%"
         />
         <StatDataDisplay
