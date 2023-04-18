@@ -84,7 +84,9 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                     return (
                       <div className="py-2 px-3 rounded-lg text-gray-600 border-t">
                         <div className="text-xs whitespace-nowrap">
-                          {date.getMonth() + 1}/{date.getDate()} {date.getHours()}:00
+                          {date.toLocaleString('zh-CN', {
+                            month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
+                          })}
                         </div>
                         <div className="whitespace-nowrap">
                       <span className="text-lg font-bold">
@@ -117,8 +119,11 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                     <AQIBadge aqi={data.aqi} short />
                     <Text
                       size="xs"
-                      opacity={0.8}>{hour === 0 ? `${date.getMonth() + 1}月${date.getDate()}日` : `${hour}:00`}
-                    </Text>
+                      opacity={0.8}
+                    >{hour === 0
+                      ? date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+                      : date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                    }</Text>
                   </Stack>
                 );
               })}

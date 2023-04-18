@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getLocation } from '@/utils/location';
 import { GeolocationError, ReGeocodeResult } from '@/types/location';
 import { notifications, Notifications } from '@mantine/notifications';
-import MinutelyCard from '@/components/MinuatelyCard';
+import MinutelyCard from '@/components/MinutelyCard';
 import AlertCard from '@/components/AlertCard';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -28,7 +28,8 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   const { data } = useSWR<WeatherData>(
     coord ? ['/api/weather', coord] : null,
     async ([url, coord]: [string, string | undefined]) => (await axios.get(url, { params: { coord } })).data,
-    // To use mock data: async () => await import('../mock/weather.json').then((res) => res.default) as WeatherData,
+    // To use mock data:
+    // async () => await import('../mock/weather.json').then((res) => res.default) as WeatherData,
     { fallbackData: initData },
   );
 
@@ -85,8 +86,24 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     return undefined;
   }, [geoData]);
 
+  const [sunrise, sunset] = useMemo(() => {
+    if (data?.result?.daily?.astro[0]) {
+      const dateString = new Date().toISOString().split('T')[0];
+      const astro = data.result.daily.astro[0];
+      const sunrise = new Date(`${dateString}T${astro.sunrise.time}+08:00`);
+      const sunset = new Date(`${dateString}T${astro.sunset.time}+08:00`);
+      return [sunrise, sunset];
+    }
+    return [undefined, undefined];
+  }, [data?.result?.daily?.astro[0].sunrise.time, data?.result?.daily?.astro[0].sunset.time]);
+
+  const isNight = useMemo(() => {
+    if (!sunrise || !sunset) return false;
+    return new Date() > sunset || new Date() < sunrise;
+  }, [sunrise, sunset]);
+
   return (
-    <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(data?.result?.realtime?.skycon)}`}>
+    <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(data?.result?.realtime?.skycon, isNight)}`}>
       <Container size="lg" p={0}>
         <CityOverview
           city={city}

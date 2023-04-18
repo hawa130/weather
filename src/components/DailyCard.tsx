@@ -56,8 +56,13 @@ export default function DailyCard({ data, ...props }: DailyCardProps) {
           return (
             <tr key={row.date}>
               <td style={{ border: 'none', width: width > 400 ? 80 : 40 }}>
-                {width > 400 ? `${date.getMonth() + 1}/${date.getDate()} ` : null}
-                {date.toDateString() === new Date().toDateString() ? '今天' : `周${getDayOfWeek(date)}`}
+                {width > 400 ? `${date.toLocaleDateString('zh-CN', {
+                  month: '2-digit', day: '2-digit',
+                })} ` : null}
+                {date.toDateString() === new Date().toDateString()
+                  ? '今天'
+                  : date.toLocaleDateString('zh-CN', { weekday: 'short' })
+                }
               </td>
               {width > 320 ? (
                 <td style={{ border: 'none', textAlign: 'center', width: 80 }}>
@@ -104,8 +109,8 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   const bgSize = 300 / (right - left);
   const bgPos = (left + 1) / 3 * 100;
 
-  const mLeftPercent = isValid ? (min - lower) / (upper - lower) * 100 : 100;
-  const mRightPercent = isValid ? (upper - max) / (upper - lower) * 100 : 0;
+  const mLeftPercent = isValid ? (min - lower) / (upper - lower) * 100 : 50;
+  const mRightPercent = isValid ? (upper - max) / (upper - lower) * 100 : 50;
 
   return (
     <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent">
@@ -127,10 +132,6 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
       </div>
     </div>
   );
-}
-
-function getDayOfWeek(date: Date) {
-  return ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
 }
 
 type CalcBoundaryConfig = {

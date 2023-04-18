@@ -27,7 +27,7 @@ export default function AlertCard({ data, className, ...props }: AlertCardProps)
           <Transition transition="slide-up" mounted={isHidden}>
             {(styles) => <SimpleBadge style={styles}>{data?.length ?? 0} 则</SimpleBadge>}
           </Transition>
-          <ActionIcon size={20} onClick={() => setIsHidden(prev => !prev)}>
+          <ActionIcon size={20}>
             <ChevronUp className={cls(isHidden ? 'rotate-180' : undefined, 'transition-transform')} />
           </ActionIcon>
         </Group>
@@ -113,7 +113,7 @@ function getAlertLevel(level: string) {
     case '04':
       return '红色';
     default:
-      return '未知';
+      return '';
   }
 }
 
