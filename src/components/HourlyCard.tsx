@@ -49,7 +49,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
             <Box h={100} w={3400}>
               <Area
                 meta={{ temperature: { range: [0, 0.8] } }}
-                appendPadding={[8, 0, 4, 0]}
+                appendPadding={[16, 0, 4, 0]}
                 data={plotData}
                 xField="time"
                 yField="temperature"
@@ -124,7 +124,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
               })}
             </SimpleGrid>
           </ScrollArea>
-        </> : <Center>暂无数据</Center>}
+        </> : <Center h={192}>暂无数据</Center>}
       </Box>
     </DataCard>
   );

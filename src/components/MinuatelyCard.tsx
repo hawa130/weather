@@ -27,7 +27,7 @@ export default function MinutelyCard({ data, description, className, ...props }:
       px="md" py="sm" {...props}
       className={cls('bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent overflow-hidden', className)}
     >
-      <Center className={max ? undefined : 'h-full'}>{description}</Center>
+      <Center className={max ? undefined : 'h-full'}>{description ?? '---'}</Center>
       {max ? (
         <ScrollArea mx={-12} mb={-8} scrollbarSize={4} type="scroll" styles={(_theme) => ({
           scrollbar: {

@@ -110,7 +110,7 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   return (
     <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent">
       <div
-        className="transition-spacing"
+        className="transition-spacing duration-500"
         style={{
           height: '100%',
           marginLeft: `${mLeftPercent}%`,

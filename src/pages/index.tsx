@@ -10,13 +10,14 @@ import SunCard from '@/components/SunCard';
 import ExtraCard from '@/components/ExtraCard';
 import DailyCard from '@/components/DailyCard';
 import { getWeatherBg } from '@/utils/weather';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { fetchWeatherData } from '@/pages/api/weather';
 import { useEffect, useMemo, useState } from 'react';
 import { getLocation } from '@/utils/location';
 import { GeolocationError, ReGeocodeResult } from '@/types/location';
 import { notifications, Notifications } from '@mantine/notifications';
 import MinutelyCard from '@/components/MinuatelyCard';
+import AlertCard from '@/components/AlertCard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,18 +25,18 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   const [coord, setCoord] = useState<string>();
   const [locating, setLocating] = useState<boolean>(false);
 
-  const { data: weatherAxiosData } = useSWR<AxiosResponse<WeatherData>>(
+  const { data } = useSWR<WeatherData>(
     coord ? ['/api/weather', coord] : null,
-    ([url, coord]: [string, string | undefined]) => axios.get(url, { params: { coord } }),
+    async ([url, coord]: [string, string | undefined]) => (await axios.get(url, { params: { coord } })).data,
+    // To use mock data: async () => await import('../mock/weather.json').then((res) => res.default) as WeatherData,
+    { fallbackData: initData },
   );
-  const data = weatherAxiosData?.data ?? initData;
 
-  const { data: geoAxiosData, isLoading: geoFetching } = useSWR<AxiosResponse<ReGeocodeResult>>(
+  const { data: geoData, isLoading: geoFetching } = useSWR<ReGeocodeResult>(
     coord ? ['/api/geocode', coord] : null,
-    ([url, coord]: [string, string | undefined]) => axios.get(url, { params: { coord } }),
+    async ([url, coord]: [string, string | undefined]) => (await axios.get(url, { params: { coord } })).data,
     { revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false },
   );
-  const geoData = geoAxiosData?.data;
 
   const handleGetLocation = () => {
     setLocating(true);
@@ -50,8 +51,8 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
         message: err.message,
         styles: (theme) => ({
           root: {
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderColor: 'rgba(255, 255, 255, 0.17)',
+            backgroundColor: 'rgba(50, 50, 50, 0.3)',
+            borderColor: 'rgba(200, 200, 200, 0.17)',
             backdropFilter: 'blur(8px)',
           },
           description: {
@@ -68,11 +69,18 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   }, []);
 
   const city = useMemo(() => {
-    if (geoData) {
+    if (geoData?.regeocode?.addressComponent) {
       const district = geoData.regeocode.addressComponent.district;
       const cityData = geoData.regeocode.addressComponent.city;
       const city = Array.isArray(cityData) ? geoData.regeocode.addressComponent.province : cityData;
       return `${city}${district}`;
+    }
+    return undefined;
+  }, [geoData]);
+
+  const street = useMemo(() => {
+    if (geoData?.regeocode?.addressComponent) {
+      return geoData.regeocode.addressComponent.streetNumber.street;
     }
     return undefined;
   }, [geoData]);
@@ -82,7 +90,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
       <Container size="lg" p={0}>
         <CityOverview
           city={city}
-          street={geoData?.regeocode.addressComponent.streetNumber.street}
+          street={street}
           temperature={data?.result?.realtime?.temperature}
           highTemperature={data?.result?.daily?.temperature[0].max}
           lowTemperature={data?.result?.daily?.temperature[0].min}
@@ -90,6 +98,9 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           geoLoading={locating || geoFetching}
           onGetLocation={handleGetLocation}
         />
+        {data?.result?.alert?.content.length ? (
+          <AlertCard mt={16} data={data?.result?.alert?.content} />
+        ) : null}
         <SimpleGrid
           cols={2}
           breakpoints={[{ maxWidth: 768, cols: 1 }]}
@@ -97,7 +108,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           mt="lg"
         >
           <SimpleGrid cols={1} spacing="lg">
-            <MinutelyCard data={data?.result.minutely} description={data?.result.minutely?.description} />
+            <MinutelyCard data={data?.result?.minutely} description={data?.result?.minutely?.description} />
             <AirQualityCard data={data?.result?.realtime?.air_quality} />
           </SimpleGrid>
           <HourlyCard data={data?.result?.hourly} />

@@ -1,18 +1,15 @@
 import { getAQIText } from '@/components/AirQualityCard';
-import { cls } from '@/utils/helper';
+import { SimpleBadge, SimpleBadgeProps } from '@/components/SimpleBadge';
 
-export interface AQIBadgeProps {
+export interface AQIBadgeProps extends SimpleBadgeProps {
   aqi?: number;
   showVal?: boolean;
   short?: boolean;
-  className?: string;
 }
 
-export default function AQIBadge({ aqi, showVal, short, className }: AQIBadgeProps) {
+export default function AQIBadge({ aqi, showVal, short, ...props }: AQIBadgeProps) {
   const text = short ? getAQIText(aqi).slice(0, 2) : getAQIText(aqi);
   return (
-    <span
-      className={cls('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-semi-transparent whitespace-nowrap', className)}
-    >{showVal ? aqi : null} {text}</span>
+    <SimpleBadge {...props}>{showVal ? aqi : null} {text}</SimpleBadge>
   );
 }
