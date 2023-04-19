@@ -44,7 +44,7 @@ export default function ExtraCard({ data, probability, ...props }: ExtraCardProp
         />
         <StatDataDisplay
           icon={<Umbrella size={16} />} title="降水概率"
-          value={probability != undefined ? (probability * 100).toFixed(0) : '--'} uint="%"
+          value={probability} uint="%"
         />
         <StatDataDisplay
           icon={<Cloud size={16} />} title="云量"

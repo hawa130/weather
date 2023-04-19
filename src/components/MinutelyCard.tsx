@@ -41,10 +41,10 @@ export default function MinutelyCard({ data, description, className, ...props }:
             },
           },
         })}>
-          <Box w={1000} h={48}>
+          <Box w={800} h={48}>
             <Area
               meta={{ data: { max: 0.5, range: [0, 0.85] } }}
-              padding={[0, -4, 0, -4]}
+              padding={[0, -4, 1, -4]}
               data={data?.precipitation_2h.map((data, index) => ({ index, data })) ?? []}
               tooltip={false}
               color="#fff"
@@ -53,11 +53,12 @@ export default function MinutelyCard({ data, description, className, ...props }:
               xAxis={{ label: null, line: null, tickLine: null }}
               yAxis={{ label: null, grid: null }}
               smooth
+              line={{ size: 1.5 }}
               areaStyle={() => ({ fill: 'l(270) 0:#ffffff00 0.5:#fff 1:#fff' })}
               animation={false}
             />
           </Box>
-          <SimpleGrid w={1000} cols={24} spacing={0} className="justify-items-center">
+          <SimpleGrid w={800} cols={24} spacing={0} className="justify-items-center">
             {Array.from({ length: 12 }, (_, i) => (
               i !== 0
                 ? <Text key={i} className="col-span-2" size="xs" pb="xs" opacity={0.8}>{i * 10}min</Text>

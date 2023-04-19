@@ -12,7 +12,7 @@ export type AQIType = {
   usa: number;
 }
 
-export type LocationType = [
+export type LngLatLocationType = [
   // 纬度
   number,
   // 经度

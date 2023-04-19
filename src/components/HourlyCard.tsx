@@ -107,6 +107,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                 smooth
                 point={{ shape: 'circle', size: 2, style: { fill: '#fff' } }}
                 areaStyle={() => ({ fill: 'l(270) 0:#ffffff00 0.5:#fff 1:#fff' })}
+                animation={false}
               />
             </Box>
             <SimpleGrid w={3400} cols={plotData.length} pb={8} className="justify-items-center" spacing={0}>

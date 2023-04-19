@@ -39,13 +39,19 @@ export default function CityOverview(
 
   return (
     <Container
-      pt={16} pb={64} px={48}
+      pt={4} pb={64} px={48}
       className="rounded-lg max-w-md"
     >
-      <Group position="center" className="cursor-pointer" onClick={onGetLocation} mb={64}>
+      <Group
+        title="切换地点"
+        position="center"
+        className="cursor-pointer rounded-lg hover:bg-semi-transparent active:bg-semi-transparent-dark transition-colors"
+        onClick={onGetLocation}
+        py="md" mb={52}
+      >
         <Group spacing="sm">
           {showLocationIcon ? <Location size={14} /> : undefined}
-          <Text className="whitespace-nowrap">{city ?? (statusText ?? '------')}</Text>
+          <Text className="whitespace-nowrap">{city ?? (statusText ?? '选择地点')}</Text>
         </Group>
         <Text className="whitespace-nowrap">{statusText && city ? statusText : street}</Text>
       </Group>

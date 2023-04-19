@@ -41,6 +41,18 @@ export default function App({ Component, pageProps }: AppProps) {
               '#141517',
               '#101113',
             ],
+            white: [
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+              '#FFFFFF',
+            ],
           },
         }}
       >

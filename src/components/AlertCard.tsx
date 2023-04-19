@@ -43,9 +43,8 @@ export default function AlertCard({ data, className, ...props }: AlertCardProps)
                 className="border-t border-semi-transparent" px="md" py="sm"
                 bg={getLevelColor(alert.code.slice(2, 4))}
               >
-                <Group spacing="sm">
+                <Group spacing="sm" position="apart">
                   <Text weight="bold">{type}{level}预警</Text>
-                  <SimpleBadge>{alert.status}</SimpleBadge>
                 </Group>
                 <Text>{alert.description}</Text>
               </Box>
@@ -122,13 +121,13 @@ function getLevelColor(level?: string) {
     case '00':
       return 'rgba(255,255,255,0.15)';
     case '01':
-      return 'rgba(49,101,255,0.15)';
+      return 'rgba(49,101,255,0.3)';
     case '02':
-      return 'rgba(250,237,30,0.15)';
+      return 'rgba(250,237,30,0.3)';
     case '03':
-      return 'rgba(247,141,25,0.25)';
+      return 'rgba(247,141,25,0.4)';
     case '04':
-      return 'rgba(215,47,40,0.25)';
+      return 'rgba(215,47,40,0.4)';
     default:
       return 'transparent';
   }

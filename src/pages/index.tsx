@@ -1,5 +1,17 @@
 import { Inter } from 'next/font/google';
-import { AppShell, Box, Container, Modal, NavLink, SimpleGrid, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  AppShell,
+  Badge,
+  Box,
+  Container,
+  Divider,
+  Drawer,
+  Menu,
+  NavLink,
+  SimpleGrid,
+  Text,
+} from '@mantine/core';
 import useSWR from 'swr';
 import CityOverview from '@/components/CityOverview';
 import AirQualityCard from '@/components/AirQualityCard';
@@ -18,27 +30,66 @@ import { GeolocationError, ReGeocodeResult } from '@/types/location';
 import { notifications, Notifications } from '@mantine/notifications';
 import MinutelyCard from '@/components/MinutelyCard';
 import AlertCard from '@/components/AlertCard';
-import { useDisclosure } from '@mantine/hooks';
-import { MapPin } from 'tabler-icons-react';
+import { useDisclosure, useLocalStorage } from '@mantine/hooks';
+import { ChevronDown, ChevronUp, CurrentLocation, Dots, Trash } from 'tabler-icons-react';
 import GeoMap, { parsePosition } from '@/components/GeoMap';
+import { extractArrayOrString } from '@/utils/helper';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export interface LocationType {
+  lnglat: string;
+  province: string;
+  city: string;
+  district: string;
+  street: string;
+  address: string;
+}
 
 export default function Home({ initData, AMapKey }: { initData?: WeatherData, AMapKey: string }) {
   const [coord, setCoord] = useState<string>();
   const [locating, setLocating] = useState<boolean>(false);
   const [isManualLocated, setIsManualLocated] = useState<boolean>(false);
-  const [opened, { open, close }] = useDisclosure(false);
+  const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
+  const [myAddress, setMyAddress] = useState<ReGeocodeResult>();
+
+  // 地点列表
+  const [locationList, setLocationList] = useLocalStorage<LocationType[]>({ key: 'location', defaultValue: [] });
+
+  const addToLocationList = (location: LocationType) => {
+    if (locationList.some((l) => l.lnglat === location.lnglat)) return;
+    setLocationList([...locationList, location]);
+  };
+
+  const removeFromLocationList = (lnglat: string) => {
+    setLocationList(locationList.filter((l) => l.lnglat !== lnglat));
+  };
+
+  const moveUpInLocationList = (lnglat: string) => {
+    const index = locationList.findIndex((l) => l.lnglat === lnglat);
+    if (index === 0) return;
+    const newList = [...locationList];
+    [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
+    setLocationList(newList);
+  };
+
+  const moveDownInLocationList = (lnglat: string) => {
+    const index = locationList.findIndex((l) => l.lnglat === lnglat);
+    if (index === locationList.length - 1) return;
+    const newList = [...locationList];
+    [newList[index + 1], newList[index]] = [newList[index], newList[index + 1]];
+    setLocationList(newList);
+  };
 
   const { data } = useSWR<WeatherData>(
     coord ? ['/api/weather', coord] : null,
     async ([url, coord]: [string, string | undefined]) => (await axios.get(url, { params: { coord } })).data,
     // To use mock data:
     // async () => await import('../mock/weather.json').then((res) => res.default) as WeatherData,
-    { fallbackData: initData },
+    { fallbackData: initData, keepPreviousData: true },
   );
 
-  const { data: geoData, isLoading: geoFetching } = useSWR<ReGeocodeResult>(
+  const { data: geoData, isLoading: geoFetching, mutate: mutateGeo } = useSWR<ReGeocodeResult>(
     coord ? ['/api/geocode', coord] : null,
     async ([url, coord]: [string, string | undefined]) => (await axios.get(url, { params: { coord } })).data,
     { revalidateIfStale: false, revalidateOnFocus: false, revalidateOnReconnect: false },
@@ -46,7 +97,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
 
   const handleGetLocation = () => {
     setLocating(true);
-    getLocation(AMapKey)
+    return getLocation(AMapKey)
       .then((result) => {
         setCoord(result.position.toString());
         setIsManualLocated(false);
@@ -75,19 +126,29 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     handleGetLocation();
   }, []);
 
-  const city = useMemo(() => {
-    if (geoData?.regeocode?.addressComponent) {
-      const district = geoData.regeocode.addressComponent.district;
-      const cityData = geoData.regeocode.addressComponent.city;
-      const city = Array.isArray(cityData) ? geoData.regeocode.addressComponent.province : cityData;
-      return `${city}${district}`;
+  useEffect(() => {
+    if (geoData && !isManualLocated) {
+      setMyAddress(geoData);
     }
-    return undefined;
+  }, [geoData, isManualLocated]);
+
+  const getCityAndDistrict = (info: ReGeocodeResult) => {
+    const province = extractArrayOrString(info.regeocode.addressComponent.province);
+    const cityData = info.regeocode.addressComponent.city;
+    const city = Array.isArray(cityData) ? province : cityData;
+    const districtData = info.regeocode.addressComponent.district;
+    const district = extractArrayOrString(districtData);
+    return [province, city, district];
+  };
+
+  const city = useMemo(() => {
+    if (!geoData?.regeocode?.addressComponent) return undefined;
+    return getCityAndDistrict(geoData).slice(1, 3);
   }, [geoData]);
 
   const street = useMemo(() => {
     if (geoData?.regeocode?.addressComponent) {
-      return geoData.regeocode.addressComponent.streetNumber.street;
+      return extractArrayOrString(geoData.regeocode.addressComponent.streetNumber.street);
     }
     return undefined;
   }, [geoData]);
@@ -112,7 +173,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(data?.result?.realtime?.skycon, isNight)}`}>
       <Container size="lg" p={0}>
         <CityOverview
-          city={city}
+          city={city?.join('')}
           street={street}
           temperature={data?.result?.realtime?.temperature}
           highTemperature={data?.result?.daily?.temperature[0].max}
@@ -121,7 +182,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           locating={locating}
           geoLoading={geoFetching}
           showLocationIcon={locating || !isManualLocated}
-          onGetLocation={open}
+          onGetLocation={openDrawer}
         />
         {data?.result?.alert?.content.length ? (
           <AlertCard mt={16} data={data?.result?.alert?.content} />
@@ -154,9 +215,13 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           <a className="opacity-60 hover:opacity-100" href="https://www.caiyunapp.com/" target="_blank">彩云天气</a>
         </Text>
       </Container>
-      <Notifications position="top-right" />
-      <Modal
-        keepMounted opened={opened} onClose={close} title="位置" centered radius="md"
+
+      <Notifications position="top-right" autoClose={3000} />
+
+      <Drawer
+        keepMounted
+        opened={drawerOpened} onClose={closeDrawer}
+        title="地点"
         styles={(_theme) => ({
           content: {
             backgroundColor: 'rgba(50, 50, 50, 0.4)',
@@ -168,20 +233,88 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
         })}
       >
         <Box mx={-12}>
-          <NavLink px={20} label="我的位置" disabled={locating} icon={<MapPin size={16} />}
-                   onClick={() => handleGetLocation()} />
           <GeoMap
+            pb="md" mt={-46}
             AMapKey={AMapKey}
             coordinate={parsePosition(coord)}
-            onChangeCoord={c => {
+            pinList={locationList}
+            setPinList={setLocationList}
+            onChangeCoord={(c, info) => {
               setIsManualLocated(true);
-              setCoord(c.toString());
-              close();
+              const coordString = c.toString();
+              setCoord(coordString);
+              mutateGeo(info);
+              const [province, city, district] = getCityAndDistrict(info);
+              const street = extractArrayOrString(info.regeocode.addressComponent.streetNumber.street);
+              const address = extractArrayOrString(info.regeocode.formatted_address);
+              addToLocationList({
+                lnglat: coordString,
+                province: province ?? '',
+                city: city ?? '',
+                district: district ?? '',
+                address: address ?? '',
+                street: street ?? '',
+              });
             }}
-            pt="md"
           />
+          <Divider />
+          <NavLink
+            px="xl"
+            label={locating ? '定位中...' : '我的位置'}
+            disabled={locating}
+            icon={<CurrentLocation size={16} />}
+            onClick={() => handleGetLocation().then(() => closeDrawer())}
+            description={myAddress?.regeocode?.formatted_address ?? '未知'}
+          />
+          <Divider />
+          {locationList.map((item, index) => (
+            <NavLink
+              key={item.lnglat} px={20}
+              label={`${item.city}${item.district} ${item.street}`}
+              onClick={() => {
+                setCoord(item.lnglat);
+                setIsManualLocated(true);
+                closeDrawer();
+              }}
+              icon={<Badge color="white" variant="outline" size="xs" miw={16}>{index + 1}</Badge>}
+              description={item.address}
+              rightSection={
+                <Menu shadow="md" width={120}>
+                  <Menu.Target>
+                    <ActionIcon onClick={(e) => e.stopPropagation()}>
+                      <Dots size={16} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      py={10} icon={<ChevronUp size={16} />} disabled={index === 0}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        moveUpInLocationList(item.lnglat);
+                      }}
+                    >上移</Menu.Item>
+                    <Menu.Item
+                      py={10} icon={<ChevronDown size={16} />} disabled={index === locationList.length - 1}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        moveDownInLocationList(item.lnglat);
+                      }}
+                    >下移</Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Item
+                      py={10} color="red" icon={<Trash size={16} />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromLocationList(item.lnglat);
+                      }}
+                    >删除</Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              }
+            />
+          ))}
         </Box>
-      </Modal>
+      </Drawer>
     </AppShell>
   );
 }

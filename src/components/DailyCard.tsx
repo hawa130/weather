@@ -113,7 +113,7 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   const mRightPercent = isValid ? (upper - max) / (upper - lower) * 100 : 50;
 
   return (
-    <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent">
+    <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent-dark">
       <div
         className="transition-spacing duration-500"
         style={{

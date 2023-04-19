@@ -3,7 +3,7 @@ import { MinutelyData } from '@/types/minutely';
 import { HourlyData } from '@/types/hourly';
 import { DailyData } from '@/types/daily';
 import { WeatherAlert } from '@/types/alert';
-import { LocationType } from '@/types/general';
+import { LngLatLocationType } from '@/types/general';
 
 export interface WeatherData {
   status: 'ok';
@@ -14,7 +14,7 @@ export interface WeatherData {
   tzshift: number;
   timezone: string;
   server_time: number;
-  location: LocationType;
+  location: LngLatLocationType;
   result: {
     alert?: WeatherAlert;
     realtime?: RealtimeData;

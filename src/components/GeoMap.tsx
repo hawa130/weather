@@ -2,13 +2,17 @@ import { Box, BoxProps, Button, Group, Text } from '@mantine/core';
 import { getMapObject } from '@/utils/location';
 import { HTMLAttributes, useCallback, useEffect, useRef, useState } from 'react';
 import { ReGeocodeResult } from '@/types/location';
+import { Plus } from 'tabler-icons-react';
 import useSWR from 'swr';
 import axios from 'axios';
+import { LocationType } from '@/pages';
 
 export interface GeoMapProps extends BoxProps, HTMLAttributes<HTMLDivElement> {
   AMapKey: string;
   coordinate?: [number, number];
-  onChangeCoord?: (coord: AMap.LngLat) => void;
+  onChangeCoord?: (coord: AMap.LngLat, info: ReGeocodeResult) => void;
+  pinList?: LocationType[];
+  setPinList?: (val: (LocationType[] | ((prevState: LocationType[]) => LocationType[]))) => void;
 }
 
 export function parsePosition(position?: string): [number, number] | undefined {
@@ -16,7 +20,7 @@ export function parsePosition(position?: string): [number, number] | undefined {
   return position.split(',').map(l => Number(l)) as [number, number];
 }
 
-export default function GeoMap({ AMapKey, coordinate, onChangeCoord, ...props }: GeoMapProps) {
+export default function GeoMap({ AMapKey, coordinate, onChangeCoord, pinList, setPinList, ...props }: GeoMapProps) {
   const map = useRef<AMap.Map>();
   const marker = useRef<AMap.Marker>();
   const AMap = useRef<any>();
@@ -37,6 +41,7 @@ export default function GeoMap({ AMapKey, coordinate, onChangeCoord, ...props }:
     AMap.current = await getMapObject(AMapKey, ['AMap.Geocoder']);
     map.current = new AMap.current.Map('map-container', {
       mapStyle: 'amap://styles/grey',
+      touchZoomCenter: 0,
     });
     map.current?.on('click', handleClick);
   };
@@ -79,14 +84,23 @@ export default function GeoMap({ AMapKey, coordinate, onChangeCoord, ...props }:
       </Text>
       <Group px="md" position="apart">
         <Group>
-          <Text size="sm">经度：{lnglat?.getLng().toFixed(5)}</Text>
-          <Text size="sm">纬度：{lnglat?.getLat().toFixed(5)}</Text>
+          <Text size="sm">经度：{lnglat?.getLng().toFixed(5) ?? '未知'}</Text>
+          <Text size="sm">纬度：{lnglat?.getLat().toFixed(5) ?? '未知'}</Text>
         </Group>
-        {lnglat && onChangeCoord ? (
+        {onChangeCoord ? (
           <Button
-            disabled={lnglat.getLng() === coordinate?.[0] && lnglat.getLat() === coordinate?.[1]}
-            onClick={() => onChangeCoord(lnglat)}
-          >确认</Button>
+            disabled={!lnglat
+              || !info
+              || isLoading
+              || pinList?.some(pin => {
+                const [lng, lat] = parsePosition(pin.lnglat) as [number, number];
+                return lng === lnglat.getLng() && lat === lnglat.getLat();
+              })
+            }
+            onClick={lnglat && info ? () => onChangeCoord(lnglat, info) : undefined}
+            variant="default" color="white"
+            leftIcon={<Plus size={16} />}
+          >添加</Button>
         ) : null}
       </Group>
     </Box>

@@ -1,4 +1,4 @@
-import { LocationType } from '@/types/general';
+import { LngLatLocationType } from '@/types/general';
 
 export interface WeatherAlert {
   status: string;
@@ -21,7 +21,7 @@ export type WeatherAlertContent = {
   county: string;
   // 发布时间，单位是 Unix 时间戳，如 1587443583
   pubtimestamp: number;
-  latlon: LocationType;
+  latlon: LngLatLocationType;
   // 市，如"三明市"
   city: string;
   // 预警 ID，如 "35040041600001_20200421123203"

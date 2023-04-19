@@ -27,14 +27,14 @@ export interface AddressComponent {
   province: string;
   city: string | [];
   citycode: string;
-  district: string;
+  district: string | [];
   adcode: string;
   township: string;
   towncode: string;
   neighborhood: { name: string, type: string };
   building: { name: string, type: string };
   streetNumber: {
-    street: string;
+    street: string | [];
     number: string;
     location: string;
     direction: string;
