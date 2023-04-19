@@ -1,15 +1,15 @@
 import { MinutelyData } from '@/types/minutely';
 import dynamic from 'next/dynamic';
-import { Box, BoxProps, Center, ScrollArea, SimpleGrid, Text } from '@mantine/core';
-import { cls } from '@/utils/helper';
+import { Box, Center, ScrollArea, SimpleGrid, Text } from '@mantine/core';
 import { useMemo } from 'react';
+import DataCard, { DataCardProps } from '@/components/DataCard';
 
 const Area = dynamic(
   () => import('@ant-design/plots').then(({ Area }) => Area),
   { ssr: false },
 );
 
-interface MinutelyCardProps extends BoxProps {
+interface MinutelyCardProps extends DataCardProps {
   data?: MinutelyData;
   description?: string;
 }
@@ -23,10 +23,7 @@ export default function MinutelyCard({ data, description, className, ...props }:
   }, [data]);
 
   return (
-    <Box
-      px="md" py="sm" {...props}
-      className={cls('bg-semi-transparent backdrop-blur rounded-lg border-t border-semi-transparent overflow-hidden', className)}
-    >
+    <DataCard noHeader {...props}>
       <Center className={max ? undefined : 'h-full'}>{description ?? '---'}</Center>
       {max ? (
         <ScrollArea mx={-12} mb={-8} scrollbarSize={4} type="scroll" styles={(_theme) => ({
@@ -56,6 +53,7 @@ export default function MinutelyCard({ data, description, className, ...props }:
               line={{ size: 1.5 }}
               areaStyle={() => ({ fill: 'l(270) 0:#ffffff00 0.5:#fff 1:#fff' })}
               animation={false}
+              renderer="svg"
             />
           </Box>
           <SimpleGrid w={800} cols={24} spacing={0} className="justify-items-center">
@@ -67,6 +65,6 @@ export default function MinutelyCard({ data, description, className, ...props }:
           </SimpleGrid>
         </ScrollArea>
       ) : null}
-    </Box>
+    </DataCard>
   );
 }

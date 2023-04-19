@@ -1,4 +1,4 @@
-import { Box, Container, Flex, Group, Stack, Text } from '@mantine/core';
+import { Box, Container, Flex, Group, Loader, Stack, Text } from '@mantine/core';
 import { getSkyConText, SkyConType } from '@/types/skycon';
 import { ChevronDown, ChevronUp, Location } from 'tabler-icons-react';
 import WeatherIcon from '@/components/WeatherIcon';
@@ -14,6 +14,7 @@ export interface CityOverviewProps {
   onGetLocation?: () => void;
   locating?: boolean;
   geoLoading?: boolean;
+  weatherValidating?: boolean;
   showLocationIcon?: boolean;
 }
 
@@ -28,6 +29,7 @@ export default function CityOverview(
     onGetLocation,
     locating,
     geoLoading,
+    weatherValidating,
     showLocationIcon,
   }: CityOverviewProps,
 ) {
@@ -49,11 +51,11 @@ export default function CityOverview(
         onClick={onGetLocation}
         py="md" mb={52}
       >
-        <Group spacing="sm">
-          {showLocationIcon ? <Location size={14} /> : undefined}
-          <Text className="whitespace-nowrap">{city ?? (statusText ?? '选择地点')}</Text>
-        </Group>
-        <Text className="whitespace-nowrap">{statusText && city ? statusText : street}</Text>
+        {locating || geoLoading || weatherValidating
+          ? <Loader size="xs" color="white" />
+          : showLocationIcon ? <Location size={16} /> : null}
+        <Text className="whitespace-nowrap">{statusText ?? city ?? '选择地点'}</Text>
+        <Text className="whitespace-nowrap">{statusText ? undefined : street}</Text>
       </Group>
       <Group position="apart">
         <Stack spacing="xs" align="center">

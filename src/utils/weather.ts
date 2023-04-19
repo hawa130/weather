@@ -1,6 +1,12 @@
 import { SkyConType } from '@/types/skycon';
 
 export function getWeatherBg(skycon?: SkyConType, isNight?: boolean) {
+  if (isNight == undefined) {
+    const sunrise = new Date().setHours(6, 0, 0, 0);
+    const sunset = new Date().setHours(18, 0, 0, 0);
+    const now = new Date().getTime();
+    isNight = now < sunrise || now > sunset;
+  }
   switch (skycon) {
     case 'CLEAR_DAY':
       return 'bg-gradient-clear-day';
@@ -40,6 +46,12 @@ export function getWeatherBg(skycon?: SkyConType, isNight?: boolean) {
 }
 
 export function getWeatherBgColor(skycon?: SkyConType, isNight?: boolean, force?: boolean) {
+  if (isNight == undefined) {
+    const sunrise = new Date().setHours(6, 0, 0, 0);
+    const sunset = new Date().setHours(18, 0, 0, 0);
+    const now = new Date().getTime();
+    isNight = now < sunrise || now > sunset;
+  }
   switch (skycon) {
     case 'CLEAR_DAY':
       return force ? '!bg-clear-day' : 'bg-clear-day';

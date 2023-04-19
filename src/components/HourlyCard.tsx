@@ -79,6 +79,7 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                       background: '#0000',
                       boxShadow: 'none',
                       padding: 0,
+                      opacity: 1,
                     },
                   },
                   customContent: (k, v) => {
@@ -87,7 +88,7 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                     const date = new Date(data.time);
                     return (
                       <div className={cls(
-                        skycon ? getWeatherBgColor(skycon, isNight) : 'bg-black bg-opacity-90',
+                        skycon ? `${getWeatherBgColor(skycon, isNight)}` : 'bg-black bg-opacity-90',
                         'py-2 px-3 rounded-lg border-t border-semi-transparent-dark text-white',
                       )}>
                         <div className="text-xs whitespace-nowrap">
@@ -115,6 +116,7 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                 point={{ shape: 'circle', size: 2, style: { fill: '#fff' } }}
                 areaStyle={() => ({ fill: 'l(270) 0:#ffffff00 0.5:#fff 1:#fff' })}
                 animation={false}
+                renderer="svg"
               />
             </Box>
             <SimpleGrid w={3400} cols={plotData.length} pb={8} className="justify-items-center" spacing={0}>

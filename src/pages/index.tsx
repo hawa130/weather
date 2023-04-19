@@ -1,5 +1,17 @@
 import { Inter } from 'next/font/google';
-import { ActionIcon, AppShell, Box, Container, Divider, Drawer, Menu, NavLink, SimpleGrid, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  AppShell,
+  Box,
+  Container,
+  Divider,
+  Drawer,
+  Loader,
+  Menu,
+  NavLink,
+  SimpleGrid,
+  Text,
+} from '@mantine/core';
 import useSWR from 'swr';
 import CityOverview from '@/components/CityOverview';
 import AirQualityCard from '@/components/AirQualityCard';
@@ -11,7 +23,6 @@ import ExtraCard from '@/components/ExtraCard';
 import DailyCard from '@/components/DailyCard';
 import { getWeatherBg, getWeatherBgColor } from '@/utils/weather';
 import axios from 'axios';
-import { fetchWeatherData } from '@/pages/api/weather';
 import { useEffect, useMemo, useState } from 'react';
 import { getLocation } from '@/utils/location';
 import { GeolocationError, ReGeocodeResult } from '@/types/location';
@@ -19,7 +30,7 @@ import { notifications, Notifications } from '@mantine/notifications';
 import MinutelyCard from '@/components/MinutelyCard';
 import AlertCard from '@/components/AlertCard';
 import { useDisclosure, useLocalStorage } from '@mantine/hooks';
-import { ChevronDown, ChevronUp, CurrentLocation, Dots, Trash } from 'tabler-icons-react';
+import { ChevronDown, ChevronUp, Dots, MapPin, Trash } from 'tabler-icons-react';
 import GeoMap, { parsePosition } from '@/components/GeoMap';
 import { cls, extractArrayOrString } from '@/utils/helper';
 import { SimpleBadge } from '@/components/SimpleBadge';
@@ -41,6 +52,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   const [isManualLocated, setIsManualLocated] = useState<boolean>(false);
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
   const [myAddress, setMyAddress] = useState<ReGeocodeResult>();
+  const [locationError, setLocationError] = useState<GeolocationError>();
 
   // 地点列表
   const [locationList, setLocationList] = useLocalStorage<LocationType[]>({ key: 'location', defaultValue: [] });
@@ -70,13 +82,14 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     setLocationList(newList);
   };
 
-  const { data } = useSWR<WeatherData>(
+  const { data, isLoading: weatherLoading, isValidating } = useSWR<WeatherData>(
     coord ? ['/api/weather', coord] : null,
     async ([url, coord]: [string, string | undefined]) => (await axios.get(url, { params: { coord } })).data,
     // To use mock data:
     // async () => await import('../mock/weather.json').then((res) => res.default) as WeatherData,
     { fallbackData: initData, keepPreviousData: true },
   );
+  const isLoading = weatherLoading || (!coord && !locationError);
 
   const { data: geoData, isLoading: geoFetching, mutate: mutateGeo } = useSWR<ReGeocodeResult>(
     coord ? ['/api/geocode', coord] : null,
@@ -86,28 +99,32 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
 
   const handleGetLocation = () => {
     setLocating(true);
+    setLocationError(undefined);
     return getLocation(AMapKey)
       .then((result) => {
         setCoord(result.position.toString());
         setIsManualLocated(false);
       })
-      .catch((err: GeolocationError) => notifications.show({
-        radius: 'md',
-        color: 'red',
-        title: '定位失败',
-        message: err.message,
-        styles: (theme) => ({
-          root: {
-            backgroundColor: 'rgba(50, 50, 50, 0.3)',
-            borderColor: 'rgba(200, 200, 200, 0.17)',
-            backdropFilter: 'blur(8px)',
-          },
-          description: {
-            color: theme.white,
-            opacity: 0.8,
-          },
-        }),
-      }))
+      .catch((err: GeolocationError) => {
+        setLocationError(err);
+        notifications.show({
+          radius: 'md',
+          color: 'red',
+          title: '定位失败',
+          message: err.message,
+          styles: (theme) => ({
+            root: {
+              backgroundColor: 'rgba(50, 50, 50, 0.3)',
+              borderColor: 'rgba(200, 200, 200, 0.17)',
+              backdropFilter: 'blur(8px)',
+            },
+            description: {
+              color: theme.white,
+              opacity: 0.8,
+            },
+          }),
+        });
+      })
       .finally(() => setLocating(false));
   };
 
@@ -154,12 +171,13 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   }, [data?.result?.daily?.astro[0].sunrise.time, data?.result?.daily?.astro[0].sunset.time]);
 
   const isNight = useMemo(() => {
-    if (!sunrise || !sunset) return false;
+    if (!sunrise || !sunset) return undefined;
     return new Date() > sunset || new Date() < sunrise;
   }, [sunrise, sunset]);
+  const skycon = data?.result?.realtime?.skycon;
 
   return (
-    <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(data?.result?.realtime?.skycon, isNight)}`}>
+    <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(skycon, isNight)}`}>
       <Container size="lg" p={0}>
         <CityOverview
           city={city?.join('')}
@@ -167,14 +185,15 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           temperature={data?.result?.realtime?.temperature}
           highTemperature={data?.result?.daily?.temperature[0].max}
           lowTemperature={data?.result?.daily?.temperature[0].min}
-          skycon={data?.result?.realtime?.skycon}
+          skycon={skycon}
           locating={locating}
           geoLoading={geoFetching}
           showLocationIcon={locating || !isManualLocated}
           onGetLocation={openDrawer}
+          weatherValidating={isValidating}
         />
         {data?.result?.alert?.content.length ? (
-          <AlertCard mt={16} data={data?.result?.alert?.content} />
+          <AlertCard mt={16} data={data?.result?.alert?.content} loading={isLoading} />
         ) : null}
         <SimpleGrid
           cols={2}
@@ -183,19 +202,24 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           mt="lg"
         >
           <SimpleGrid cols={1} spacing="lg">
-            <MinutelyCard data={data?.result?.minutely} description={data?.result?.minutely?.description} />
-            <AirQualityCard data={data?.result?.realtime?.air_quality} />
+            <MinutelyCard
+              loading={isLoading}
+              data={data?.result?.minutely}
+              description={data?.result?.minutely?.description}
+            />
+            <AirQualityCard data={data?.result?.realtime?.air_quality} loading={isLoading} />
           </SimpleGrid>
-          <HourlyCard data={data?.result?.hourly} skycon={data?.result?.realtime?.skycon} isNight={isNight} />
-          <DailyCard className="col-span-1" data={data?.result?.daily} />
+          <HourlyCard data={data?.result?.hourly} skycon={skycon} isNight={isNight} loading={isLoading} />
+          <DailyCard className="col-span-1" data={data?.result?.daily} loading={isLoading} />
           <SimpleGrid cols={1} spacing="lg">
             <SimpleGrid cols={2} spacing="lg">
-              <WindCard data={data?.result?.realtime?.wind} />
-              <SunCard data={data?.result?.daily?.astro[0]} />
+              <WindCard data={data?.result?.realtime?.wind} loading={isLoading} />
+              <SunCard data={data?.result?.daily?.astro[0]} loading={isLoading} />
             </SimpleGrid>
             <ExtraCard
               data={data?.result?.realtime}
               probability={data?.result?.hourly?.precipitation[0].probability}
+              loading={isLoading}
             />
           </SimpleGrid>
         </SimpleGrid>
@@ -209,7 +233,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
 
       <Drawer
         classNames={{
-          content: cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight), 'bg-opacity-40 backdrop-blur'),
+          content: cls(getWeatherBgColor(skycon, isNight), 'bg-opacity-40 backdrop-blur'),
           header: 'bg-transparent',
         }}
         keepMounted
@@ -245,12 +269,12 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
             px="xl"
             label={locating ? '定位中...' : '我的位置'}
             disabled={locating}
-            icon={<CurrentLocation size={20} />}
+            icon={locating ? <Loader size={20} color="white" /> : <MapPin size={20} />}
             onClick={() => handleGetLocation().then(() => closeDrawer())}
             description={myAddress?.regeocode?.formatted_address ?? '未知'}
             active={!isManualLocated}
             classNames={{
-              root: cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
+              root: cls(getWeatherBgColor(skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
             }}
           />
           <Divider className="border-semi-transparent-dark" />
@@ -258,7 +282,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
             <NavLink
               key={item.lnglat} px={20}
               classNames={{
-                root: cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
+                root: cls(getWeatherBgColor(skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
               }}
               label={`${item.city}${item.district} ${item.street}`}
               onClick={() => {
@@ -276,9 +300,9 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
                       <Dots size={16} />
                     </ActionIcon>
                   </Menu.Target>
-                  <Menu.Dropdown
-                    className={cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight), 'border-semi-transparent-dark bg-opacity-90')}
-                  >
+                  <Menu.Dropdown className={cls(
+                    getWeatherBgColor(skycon, isNight), 'border-semi-transparent-dark',
+                  )}>
                     <Menu.Item
                       py={10} icon={<ChevronUp size={16} />} disabled={index === 0}
                       onClick={(e) => {
@@ -313,9 +337,8 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
 }
 
 export async function getServerSideProps() {
-  const data = await fetchWeatherData();
   const AMapKey = process.env.AMAP_JS_KEY;
   return {
-    props: { initData: data, AMapKey },
+    props: { AMapKey },
   };
 }
