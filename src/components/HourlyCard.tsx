@@ -4,9 +4,11 @@ import { Clock } from 'tabler-icons-react';
 import { Box, Center, ScrollArea, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { getSkyConText } from '@/types/skycon';
+import { getSkyConText, SkyConType } from '@/types/skycon';
 import WeatherIcon from '@/components/WeatherIcon';
 import AQIBadge from '@/components/AQIBadge';
+import { cls } from '@/utils/helper';
+import { getWeatherBgColor } from '@/utils/weather';
 
 const Area = dynamic(
   () => import('@ant-design/plots').then(({ Area }) => Area),
@@ -15,9 +17,11 @@ const Area = dynamic(
 
 export interface HourlyWeatherProps extends Omit<DataCardProps, 'icon' | 'title'> {
   data?: HourlyData;
+  skycon?: SkyConType;
+  isNight?: boolean;
 }
 
-export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
+export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWeatherProps) {
   const plotData = useMemo(() => {
     return Array.from({ length: data?.temperature.length ?? 0 }, (_, i) => ({
       time: data!.temperature[i].datetime,
@@ -72,7 +76,7 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                   domStyles: {
                     'g2-tooltip': {
                       borderRadius: '0.5rem',
-                      background: '#fffe',
+                      background: '#0000',
                       boxShadow: 'none',
                       padding: 0,
                     },
@@ -82,22 +86,25 @@ export default function HourlyCard({ data, ...props }: HourlyWeatherProps) {
                     const data = v[0].data as PlotData;
                     const date = new Date(data.time);
                     return (
-                      <div className="py-2 px-3 rounded-lg text-gray-600 border-t">
+                      <div className={cls(
+                        skycon ? getWeatherBgColor(skycon, isNight) : 'bg-black bg-opacity-90',
+                        'py-2 px-3 rounded-lg border-t border-semi-transparent-dark text-white',
+                      )}>
                         <div className="text-xs whitespace-nowrap">
                           {date.toLocaleString('zh-CN', {
                             month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
                           })}
                         </div>
                         <div className="whitespace-nowrap">
-                      <span className="text-lg font-bold">
-                        {data.temperature.toFixed(0) ?? '--'}°
-                      </span>
+                          <span className="text-lg font-bold">
+                            {data.temperature.toFixed(0) ?? '--'}°
+                          </span>
                           <span className="ml-1 text-sm">
-                        {getSkyConText(data.skycon)}
-                      </span>
+                            {getSkyConText(data.skycon)}
+                          </span>
                         </div>
                         <div className="text-xs whitespace-nowrap">
-                          <AQIBadge className="!bg-gray-200" aqi={data.aqi} showVal />
+                          <AQIBadge aqi={data.aqi} showVal />
                         </div>
                       </div>
                     );

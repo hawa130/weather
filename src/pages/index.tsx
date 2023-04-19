@@ -1,17 +1,5 @@
 import { Inter } from 'next/font/google';
-import {
-  ActionIcon,
-  AppShell,
-  Badge,
-  Box,
-  Container,
-  Divider,
-  Drawer,
-  Menu,
-  NavLink,
-  SimpleGrid,
-  Text,
-} from '@mantine/core';
+import { ActionIcon, AppShell, Box, Container, Divider, Drawer, Menu, NavLink, SimpleGrid, Text } from '@mantine/core';
 import useSWR from 'swr';
 import CityOverview from '@/components/CityOverview';
 import AirQualityCard from '@/components/AirQualityCard';
@@ -21,7 +9,7 @@ import WindCard from '@/components/WindCard';
 import SunCard from '@/components/SunCard';
 import ExtraCard from '@/components/ExtraCard';
 import DailyCard from '@/components/DailyCard';
-import { getWeatherBg } from '@/utils/weather';
+import { getWeatherBg, getWeatherBgColor } from '@/utils/weather';
 import axios from 'axios';
 import { fetchWeatherData } from '@/pages/api/weather';
 import { useEffect, useMemo, useState } from 'react';
@@ -33,7 +21,8 @@ import AlertCard from '@/components/AlertCard';
 import { useDisclosure, useLocalStorage } from '@mantine/hooks';
 import { ChevronDown, ChevronUp, CurrentLocation, Dots, Trash } from 'tabler-icons-react';
 import GeoMap, { parsePosition } from '@/components/GeoMap';
-import { extractArrayOrString } from '@/utils/helper';
+import { cls, extractArrayOrString } from '@/utils/helper';
+import { SimpleBadge } from '@/components/SimpleBadge';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -197,7 +186,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
             <MinutelyCard data={data?.result?.minutely} description={data?.result?.minutely?.description} />
             <AirQualityCard data={data?.result?.realtime?.air_quality} />
           </SimpleGrid>
-          <HourlyCard data={data?.result?.hourly} />
+          <HourlyCard data={data?.result?.hourly} skycon={data?.result?.realtime?.skycon} isNight={isNight} />
           <DailyCard className="col-span-1" data={data?.result?.daily} />
           <SimpleGrid cols={1} spacing="lg">
             <SimpleGrid cols={2} spacing="lg">
@@ -219,18 +208,12 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
       <Notifications position="top-right" autoClose={3000} />
 
       <Drawer
+        classNames={{
+          content: cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight), 'bg-opacity-40 backdrop-blur'),
+          header: 'bg-transparent',
+        }}
         keepMounted
         opened={drawerOpened} onClose={closeDrawer}
-        title="地点"
-        styles={(_theme) => ({
-          content: {
-            backgroundColor: 'rgba(50, 50, 50, 0.4)',
-            backdropFilter: 'blur(8px)',
-          },
-          header: {
-            backgroundColor: 'transparent',
-          },
-        })}
       >
         <Box mx={-12}>
           <GeoMap
@@ -257,35 +240,45 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
               });
             }}
           />
-          <Divider />
+          <Divider className="border-semi-transparent-dark" />
           <NavLink
             px="xl"
             label={locating ? '定位中...' : '我的位置'}
             disabled={locating}
-            icon={<CurrentLocation size={16} />}
+            icon={<CurrentLocation size={20} />}
             onClick={() => handleGetLocation().then(() => closeDrawer())}
             description={myAddress?.regeocode?.formatted_address ?? '未知'}
+            active={!isManualLocated}
+            classNames={{
+              root: cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
+            }}
           />
-          <Divider />
+          <Divider className="border-semi-transparent-dark" />
           {locationList.map((item, index) => (
             <NavLink
               key={item.lnglat} px={20}
+              classNames={{
+                root: cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
+              }}
               label={`${item.city}${item.district} ${item.street}`}
               onClick={() => {
                 setCoord(item.lnglat);
                 setIsManualLocated(true);
                 closeDrawer();
               }}
-              icon={<Badge color="white" variant="outline" size="xs" miw={16}>{index + 1}</Badge>}
+              active={item.lnglat === coord}
+              icon={<SimpleBadge className="!px-1 min-w-[1.25rem]">{index + 1}</SimpleBadge>}
               description={item.address}
               rightSection={
-                <Menu shadow="md" width={120}>
+                <Menu shadow="md" width={120} radius="md">
                   <Menu.Target>
                     <ActionIcon onClick={(e) => e.stopPropagation()}>
                       <Dots size={16} />
                     </ActionIcon>
                   </Menu.Target>
-                  <Menu.Dropdown>
+                  <Menu.Dropdown
+                    className={cls(getWeatherBgColor(data?.result?.realtime?.skycon, isNight), 'border-semi-transparent-dark bg-opacity-90')}
+                  >
                     <Menu.Item
                       py={10} icon={<ChevronUp size={16} />} disabled={index === 0}
                       onClick={(e) => {
@@ -300,7 +293,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
                         moveDownInLocationList(item.lnglat);
                       }}
                     >下移</Menu.Item>
-                    <Menu.Divider />
+                    <Menu.Divider className="border-semi-transparent-dark" />
                     <Menu.Item
                       py={10} color="red" icon={<Trash size={16} />}
                       onClick={(e) => {

@@ -98,8 +98,9 @@ export default function GeoMap({ AMapKey, coordinate, onChangeCoord, pinList, se
               })
             }
             onClick={lnglat && info ? () => onChangeCoord(lnglat, info) : undefined}
-            variant="default" color="white"
+            variant="outline" color="white"
             leftIcon={<Plus size={16} />}
+            radius="md"
           >添加</Button>
         ) : null}
       </Group>
