@@ -9,6 +9,9 @@ import WeatherIcon from '@/components/WeatherIcon';
 import AQIBadge from '@/components/AQIBadge';
 import { cls } from '@/utils/helper';
 import { getWeatherBgColor } from '@/utils/weather';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 const Area = dynamic(
   () => import('@ant-design/plots').then(({ Area }) => Area),
@@ -38,13 +41,13 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
       <Box className="h-full flex flex-col justify-between">
         {data ? <>
           <Text align="center">{data?.description}</Text>
-          <ScrollArea mx={-12} mb={-8} scrollbarSize={4} type="scroll" styles={(_theme) => ({
+          <ScrollArea mx={-12} mb={-8} scrollbarSize={6} styles={(_theme) => ({
             scrollbar: {
               '&[data-orientation="horizontal"]': {
                 transition: 'height 150ms ease-in-out',
               },
               '&[data-orientation="horizontal"]:hover': {
-                height: '6px',
+                height: '8px',
                 transition: 'height 150ms ease-in-out',
                 background: 'rgba(255,255,255,0.1)',
               },
@@ -66,12 +69,13 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                     return `${data.temperature.toFixed(0)}°`;
                   },
                   style: {
+                    ...inter.style,
                     fill: '#fff',
                     fontSize: 16,
-                    fontFamily: 'Inter',
                   },
                   autoRotate: false,
                 }}
+                startOnZero={false}
                 tooltip={{
                   domStyles: {
                     'g2-tooltip': {
@@ -87,10 +91,13 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                     const data = v[0].data as PlotData;
                     const date = new Date(data.time);
                     return (
-                      <div className={cls(
-                        skycon ? `${getWeatherBgColor(skycon, isNight)}` : 'bg-black bg-opacity-90',
-                        'py-2 px-3 rounded-lg border-t border-semi-transparent-dark text-white',
-                      )}>
+                      <div
+                        style={inter.style}
+                        className={cls(
+                          skycon ? `${getWeatherBgColor(skycon, isNight)}` : 'bg-black bg-opacity-90',
+                          'py-2 px-3 rounded-lg border-t border-semi-transparent-dark text-white',
+                        )}
+                      >
                         <div className="text-xs whitespace-nowrap">
                           {date.toLocaleString('zh-CN', {
                             month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',

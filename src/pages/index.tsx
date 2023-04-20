@@ -1,4 +1,3 @@
-import { Inter } from 'next/font/google';
 import {
   ActionIcon,
   AppShell,
@@ -34,8 +33,6 @@ import { ChevronDown, ChevronUp, Dots, MapPin, Trash } from 'tabler-icons-react'
 import GeoMap, { parsePosition } from '@/components/GeoMap';
 import { cls, extractArrayOrString } from '@/utils/helper';
 import { SimpleBadge } from '@/components/SimpleBadge';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export interface LocationType {
   lnglat: string;
@@ -170,14 +167,11 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     return [undefined, undefined];
   }, [data?.result?.daily?.astro[0].sunrise.time, data?.result?.daily?.astro[0].sunset.time]);
 
-  const isNight = useMemo(() => {
-    if (!sunrise || !sunset) return undefined;
-    return new Date() > sunset || new Date() < sunrise;
-  }, [sunrise, sunset]);
+  const isNight = !sunrise || !sunset ? undefined : new Date() >= sunset || new Date() < sunrise;
   const skycon = data?.result?.realtime?.skycon;
 
   return (
-    <AppShell className={`${inter.className} bg-fixed ${getWeatherBg(skycon, isNight)}`}>
+    <AppShell className={`bg-fixed ${getWeatherBg(skycon, isNight)}`}>
       <Container size="lg" p={0}>
         <CityOverview
           city={city?.join('')}
@@ -229,7 +223,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
         </Text>
       </Container>
 
-      <Notifications position="top-right" autoClose={3000} />
+      <Notifications position="top-right" autoClose={3700} />
 
       <Drawer
         classNames={{

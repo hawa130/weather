@@ -3,9 +3,6 @@ import { RealtimeData } from '@/types/realtime';
 import { Cloud, DropletFilled2, Eye, Flare, Gauge, Radar2, Sun, Temperature, Umbrella } from 'tabler-icons-react';
 import { Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export interface ExtraCardProps extends Omit<DataCardProps, 'icon' | 'title'> {
   data?: RealtimeData;
@@ -78,8 +75,8 @@ function StatDataDisplay({ icon, title, value, uint }: StaticDataDisplayProps) {
         <Text size="sm">{title}</Text>
       </Group>
       <Group spacing="xs" align="flex-end">
-        <Text className={inter.className} size={20} weight={500}>{value ?? '--'}</Text>
-        <Text className={inter.className} pb={3} size="sm" opacity={0.8}>{uint}</Text>
+        <Text size={20} weight={500}>{value ?? '--'}</Text>
+        <Text pb={3} size="sm" opacity={0.8}>{uint}</Text>
       </Group>
     </Stack>
   );

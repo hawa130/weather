@@ -26,13 +26,13 @@ export default function MinutelyCard({ data, description, className, ...props }:
     <DataCard noHeader {...props}>
       <Center className={max ? undefined : 'h-full'}>{description ?? '---'}</Center>
       {max ? (
-        <ScrollArea mx={-12} mb={-8} scrollbarSize={4} type="scroll" styles={(_theme) => ({
+        <ScrollArea mx={-12} mb={-8} scrollbarSize={6} styles={(_theme) => ({
           scrollbar: {
             '&[data-orientation="horizontal"]': {
               transition: 'height 150ms ease-in-out',
             },
             '&[data-orientation="horizontal"]:hover': {
-              height: '6px',
+              height: '8px',
               transition: 'height 150ms ease-in-out',
               background: 'rgba(255,255,255,0.1)',
             },

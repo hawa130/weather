@@ -2,6 +2,9 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { MantineProvider } from '@mantine/core';
 import Head from 'next/head';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -14,7 +17,6 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <MantineProvider
         withGlobalStyles
-        withNormalizeCSS
         theme={{
           /** Put your mantine theme override here */
           spacing: {
@@ -54,6 +56,7 @@ export default function App({ Component, pageProps }: AppProps) {
               '#FFFFFF',
             ],
           },
+          ...inter.style,
         }}
       >
         <Component {...pageProps} />
