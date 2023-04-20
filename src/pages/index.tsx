@@ -44,14 +44,26 @@ export interface LocationType {
 }
 
 export default function Home({ initData, AMapKey }: { initData?: WeatherData, AMapKey: string }) {
-  const [coord, setCoord] = useState<string>();
+  // 定位状态与错误
   const [locating, setLocating] = useState<boolean>(false);
-  const [isManualLocated, setIsManualLocated] = useState<boolean>(false);
-  const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
-  const [myAddress, setMyAddress] = useState<ReGeocodeResult>();
   const [locationError, setLocationError] = useState<GeolocationError>();
 
-  // 地点列表
+  // 是否为手动选择地点
+  const [isManualLocated, setIsManualLocated] = useState<boolean>(true);
+
+  // 选择地点弹出层开启状态
+  const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
+
+  // 我的地址
+  const [myAddress, setMyAddress] = useState<ReGeocodeResult>();
+
+  // 定位结果缓存
+  const [myLngLat, setMyLngLat] = useLocalStorage<string>({ key: 'myLngLat', defaultValue: '' });
+
+  // 当前坐标
+  const [coord, setCoord] = useState<string>();
+
+  // 收藏的地点列表
   const [locationList, setLocationList] = useLocalStorage<LocationType[]>({ key: 'location', defaultValue: [] });
 
   const addToLocationList = (location: LocationType) => {
@@ -99,20 +111,26 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     setLocationError(undefined);
     return getLocation(AMapKey)
       .then((result) => {
-        setCoord(result.position.toString());
-        setIsManualLocated(false);
+        setMyLngLat(result.position.toString());
       })
       .catch((err: GeolocationError) => {
         setLocationError(err);
+
+        const coordStorage = localStorage.getItem('coord');
+        if (coordStorage) {
+          setCoord(coordStorage);
+        }
+
+        console.log('定位失败:', err.message);
         notifications.show({
           radius: 'md',
           color: 'red',
           title: '定位失败',
-          message: err.message,
+          message: '请检查浏览器是否授予位置权限',
           styles: (theme) => ({
             root: {
-              backgroundColor: 'rgba(50, 50, 50, 0.3)',
-              borderColor: 'rgba(200, 200, 200, 0.17)',
+              backgroundColor: 'rgba(50,50,50,0.3)',
+              borderColor: 'rgba(200,200,200,0.17)',
               backdropFilter: 'blur(8px)',
             },
             description: {
@@ -124,6 +142,19 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
       })
       .finally(() => setLocating(false));
   };
+
+  useEffect(() => {
+    if (myLngLat) {
+      setCoord(myLngLat);
+      setIsManualLocated(false);
+    }
+  }, [myLngLat]);
+
+  useEffect(() => {
+    if (coord) {
+      localStorage.setItem('coord', coord);
+    }
+  }, [coord]);
 
   useEffect(() => {
     handleGetLocation();
@@ -176,6 +207,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
         <CityOverview
           city={city?.join('')}
           street={street}
+          fallbackCity={coord}
           temperature={data?.result?.realtime?.temperature}
           highTemperature={data?.result?.daily?.temperature[0].max}
           lowTemperature={data?.result?.daily?.temperature[0].min}
@@ -256,6 +288,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
                 address: address ?? '',
                 street: street ?? '',
               });
+              closeDrawer();
             }}
           />
           <Divider className="border-semi-transparent-dark" />
@@ -275,10 +308,11 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
           {locationList.map((item, index) => (
             <NavLink
               key={item.lnglat} px={20}
+              component="div"
               classNames={{
                 root: cls(getWeatherBgColor(skycon, isNight, true), '!bg-opacity-0', 'hover:!bg-opacity-100'),
               }}
-              label={`${item.city}${item.district} ${item.street}`}
+              label={item.province ? `${item.city}${item.district} ${item.street}` : '坐标'}
               onClick={() => {
                 setCoord(item.lnglat);
                 setIsManualLocated(true);
@@ -286,7 +320,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
               }}
               active={item.lnglat === coord}
               icon={<SimpleBadge className="!px-1 min-w-[1.25rem]">{index + 1}</SimpleBadge>}
-              description={item.address}
+              description={item.address || item.lnglat}
               rightSection={
                 <Menu shadow="md" width={120} radius="md">
                   <Menu.Target>
@@ -298,14 +332,14 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
                     getWeatherBgColor(skycon, isNight), 'border-semi-transparent-dark',
                   )}>
                     <Menu.Item
-                      py={10} icon={<ChevronUp size={16} />} disabled={index === 0}
+                      py="sm" icon={<ChevronUp size={16} />} disabled={index === 0}
                       onClick={(e) => {
                         e.stopPropagation();
                         moveUpInLocationList(item.lnglat);
                       }}
                     >上移</Menu.Item>
                     <Menu.Item
-                      py={10} icon={<ChevronDown size={16} />} disabled={index === locationList.length - 1}
+                      py="sm" icon={<ChevronDown size={16} />} disabled={index === locationList.length - 1}
                       onClick={(e) => {
                         e.stopPropagation();
                         moveDownInLocationList(item.lnglat);
@@ -313,7 +347,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
                     >下移</Menu.Item>
                     <Menu.Divider className="border-semi-transparent-dark" />
                     <Menu.Item
-                      py={10} color="red" icon={<Trash size={16} />}
+                      py="sm" color="red" icon={<Trash size={16} />}
                       onClick={(e) => {
                         e.stopPropagation();
                         removeFromLocationList(item.lnglat);

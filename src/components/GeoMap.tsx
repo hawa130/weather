@@ -42,6 +42,7 @@ export default function GeoMap({ AMapKey, coordinate, onChangeCoord, pinList, se
     map.current = new AMap.current.Map('map-container', {
       mapStyle: 'amap://styles/grey',
       touchZoomCenter: 0,
+      zoom: 12,
     });
     map.current?.on('click', handleClick);
   };
@@ -65,7 +66,7 @@ export default function GeoMap({ AMapKey, coordinate, onChangeCoord, pinList, se
 
   useEffect(() => {
     if (coordinate && map.current && AMap.current) {
-      map.current?.setZoomAndCenter(12, coordinate);
+      map.current?.setCenter(coordinate);
       setLnglat(new AMap.current.LngLat(coordinate[0], coordinate[1]));
     }
   }, [coordinate]);

@@ -54,7 +54,7 @@ export default function DailyCard({ data, ...props }: DailyCardProps) {
         {rows.map((row, index) => {
           const date = row.date ? new Date(row.date) : new Date(Date.now() + 86400000 * index);
           return (
-            <tr key={row.date}>
+            <tr key={date.getTime()}>
               <td style={{ border: 'none', width: width > 400 ? 80 : 40 }}>
                 {width > 400 ? `${date.toLocaleDateString('zh-CN', {
                   month: '2-digit', day: '2-digit',
@@ -115,7 +115,7 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
   return (
     <div className="relative temperature-indicator h-1 rounded-full overflow-hidden bg-semi-transparent-dark">
       <div
-        className="transition-spacing duration-500"
+        className="transition-spacing duration-700"
         style={{
           height: '100%',
           marginLeft: `${mLeftPercent}%`,
@@ -124,7 +124,7 @@ function TemperatureIndicator({ min, max, lower, upper }: TemperatureIndicatorPr
         }}
       >
         <div
-          className="absolute inset-0 bg-gradient-linear origin-left transition-transform duration-500"
+          className="absolute inset-0 bg-gradient-linear origin-left transition-transform duration-700"
           style={{ transform: `scaleX(${bgSize}%) translateX(-${bgPos}%)` }}
         />
       </div>

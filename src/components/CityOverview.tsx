@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 export interface CityOverviewProps {
   city?: string;
   street?: string;
+  fallbackCity?: string;
   highTemperature?: number;
   lowTemperature?: number;
   temperature?: number;
@@ -22,6 +23,7 @@ export default function CityOverview(
   {
     city,
     street,
+    fallbackCity,
     highTemperature,
     lowTemperature,
     temperature,
@@ -54,7 +56,7 @@ export default function CityOverview(
         {locating || geoLoading || weatherValidating
           ? <Loader size="xs" color="white" />
           : showLocationIcon ? <Location size={16} /> : null}
-        <Text className="whitespace-nowrap">{statusText ?? city ?? '选择地点'}</Text>
+        <Text className="whitespace-nowrap">{statusText ?? (city || fallbackCity) ?? '选择地点'}</Text>
         <Text className="whitespace-nowrap">{statusText ? undefined : street}</Text>
       </Group>
       <Group position="apart">
