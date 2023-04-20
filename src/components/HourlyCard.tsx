@@ -98,7 +98,7 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                           'py-2 px-3 rounded-lg border-t border-semi-transparent-dark text-white',
                         )}
                       >
-                        <div className="text-xs whitespace-nowrap">
+                        <div className="text-xs whitespace-nowrap opacity-80">
                           {date.toLocaleString('zh-CN', {
                             month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
                           })}

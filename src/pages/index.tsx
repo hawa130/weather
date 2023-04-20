@@ -48,9 +48,6 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   const [locating, setLocating] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<GeolocationError>();
 
-  // 是否为手动选择地点
-  const [isManualLocated, setIsManualLocated] = useState<boolean>(true);
-
   // 选择地点弹出层开启状态
   const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
 
@@ -62,6 +59,8 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
 
   // 当前坐标
   const [coord, setCoord] = useState<string>();
+
+  const isManualLocated = coord !== myLngLat;
 
   // 收藏的地点列表
   const [locationList, setLocationList] = useLocalStorage<LocationType[]>({ key: 'location', defaultValue: [] });
@@ -112,8 +111,7 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     return getLocation(AMapKey)
       .then((result) => {
         setMyLngLat(result.position.toString());
-        setCoord(myLngLat);
-        setIsManualLocated(false);
+        setCoord(result.position.toString());
       })
       .catch((err: GeolocationError) => {
         setLocationError(err);
@@ -146,17 +144,16 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
   };
 
   useEffect(() => {
-    if (myLngLat) {
-      setCoord(myLngLat);
-      setIsManualLocated(false);
-    }
-  }, [myLngLat]);
-
-  useEffect(() => {
     if (coord) {
       localStorage.setItem('coord', coord);
     }
   }, [coord]);
+
+  useEffect(() => {
+    if (myLngLat) {
+      setCoord(myLngLat);
+    }
+  }, [myLngLat]);
 
   useEffect(() => {
     handleGetLocation();
@@ -275,7 +272,6 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
             pinList={locationList}
             setPinList={setLocationList}
             onChangeCoord={(c, info) => {
-              setIsManualLocated(true);
               const coordString = c.toString();
               setCoord(coordString);
               mutateGeo(info);
@@ -317,7 +313,6 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
               label={item.province ? `${item.city}${item.district} ${item.street}` : '坐标'}
               onClick={() => {
                 setCoord(item.lnglat);
-                setIsManualLocated(true);
                 closeDrawer();
               }}
               active={item.lnglat === coord}
