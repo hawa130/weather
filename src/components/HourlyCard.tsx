@@ -104,7 +104,7 @@ export default function HourlyCard({ data, skycon, isNight, ...props }: HourlyWe
                           })}
                         </div>
                         <div className="whitespace-nowrap">
-                          <span className="text-lg font-bold">
+                          <span className="text-lg font-medium">
                             {data.temperature.toFixed(0) ?? '--'}°
                           </span>
                           <span className="ml-1 text-sm">

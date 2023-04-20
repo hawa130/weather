@@ -112,6 +112,8 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
     return getLocation(AMapKey)
       .then((result) => {
         setMyLngLat(result.position.toString());
+        setCoord(myLngLat);
+        setIsManualLocated(false);
       })
       .catch((err: GeolocationError) => {
         setLocationError(err);
