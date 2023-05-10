@@ -5,6 +5,7 @@ import {
   Container,
   Divider,
   Drawer,
+  Group,
   Loader,
   Menu,
   NavLink,
@@ -248,10 +249,20 @@ export default function Home({ initData, AMapKey }: { initData?: WeatherData, AM
             />
           </SimpleGrid>
         </SimpleGrid>
-        <Text align="center" size="sm" mt="lg">
-          <span className="opacity-60">数据来源：</span>
-          <a className="opacity-60 hover:opacity-100" href="https://www.caiyunapp.com/" target="_blank">彩云天气</a>
-        </Text>
+        <Group position="center" mt="lg" spacing="sm">
+          <Text size="sm">
+            <a className="opacity-60 hover:opacity-100" href="https://github.com/hawa130/weather" target="_blank">
+              GitHub
+            </a>
+          </Text>
+          <Text size="xs" className="opacity-60">
+            ·
+          </Text>
+          <Text size="sm">
+            <span className="opacity-60">数据来源：</span>
+            <a className="opacity-60 hover:opacity-100" href="https://www.caiyunapp.com/" target="_blank">彩云天气</a>
+          </Text>
+        </Group>
       </Container>
 
       <Notifications position="top-right" autoClose={3700} />

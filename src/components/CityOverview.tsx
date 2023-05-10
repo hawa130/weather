@@ -1,4 +1,4 @@
-import { Box, Container, Flex, Group, Loader, Stack, Text } from '@mantine/core';
+import { Box, Container, Flex, Group, Loader, Stack, Text, UnstyledButton } from '@mantine/core';
 import { getSkyConText, SkyConType } from '@/types/skycon';
 import { ChevronDown, ChevronUp, Location } from 'tabler-icons-react';
 import WeatherIcon from '@/components/WeatherIcon';
@@ -46,10 +46,9 @@ export default function CityOverview(
       pt={4} pb={64} px={48}
       className="rounded-lg max-w-md"
     >
-      <Group
+      <UnstyledButton
         title="切换地点"
-        position="center"
-        className="cursor-pointer rounded-lg hover:bg-semi-transparent active:bg-semi-transparent-dark transition-colors"
+        className="w-full flex justify-center items-center gap-3 cursor-pointer rounded-lg hover:bg-semi-transparent active:bg-semi-transparent-dark transition-colors"
         onClick={onGetLocation}
         py="md" mb={52}
       >
@@ -58,7 +57,7 @@ export default function CityOverview(
           : showLocationIcon ? <Location size={16} /> : null}
         <Text className="whitespace-nowrap">{statusText ?? (city || fallbackCity) ?? '选择地点'}</Text>
         <Text className="whitespace-nowrap">{statusText ? undefined : street}</Text>
-      </Group>
+      </UnstyledButton>
       <Group position="apart">
         <Stack spacing="xs" align="center">
           {skycon ? <WeatherIcon className="w-14 h-14" skycon={skycon} /> : <Box className="w-14 h-14" />}
